@@ -1,5 +1,347 @@
 <!DOCTYPE html>
-<html>
-<head><title>Riya COC</title></head>
-<body><h1>Riya COC — coming soon</h1></body>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riya COC — Confirmation of Insurance Generator</title>
+<style>
+  :root {
+    --navy: #1F4E5F;
+    --gold: #B8942F;
+    --lightgold: #F5EFDD;
+    --border: #E0E0E0;
+    --muted: #6B6B6B;
+    --bg: #FAFAF8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    margin: 0;
+    color: #1A1A1A;
+  }
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 18px 28px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  header .logo { font-weight: 800; font-size: 22px; letter-spacing: 0.5px; }
+  header .sub { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); }
+  .shell { max-width: 780px; margin: 0 auto; padding: 28px 20px 60px; }
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--navy);
+    margin: 0 0 14px 0;
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 8px;
+  }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 4px;
+    margin-top: 12px;
+  }
+  label:first-child { margin-top: 0; }
+  input[type=text], textarea {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 140px; }
+  .field-row { display: flex; gap: 12px; }
+  .field-row > div { flex: 1; }
+  .btn {
+    background: var(--navy);
+    color: white;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .btn:hover { opacity: 0.92; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-gold { background: var(--gold); }
+  .btn-outline {
+    background: white;
+    color: var(--navy);
+    border: 1px solid var(--navy);
+  }
+  .status { font-size: 12px; color: var(--muted); margin-top: 8px; min-height: 16px; }
+  .status.error { color: #B04A4A; }
+  .status.success { color: #2E7D32; }
+  .hidden { display: none; }
+  .token-box {
+    background: var(--lightgold);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 12px;
+  }
+  .token-box input { margin-top: 6px; }
+  .note {
+    font-size: 12px;
+    color: var(--muted);
+    background: #F0F4F5;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">Riya</span>
+  <span class="sub">Confirmation of Insurance</span>
+</header>
+
+<div class="shell">
+
+  <div class="token-box" id="tokenBox">
+    <strong>Broker Token</strong>
+    <input type="text" id="brokerToken" placeholder="Enter your broker token">
+  </div>
+
+  <div class="card">
+    <h2>1. Fleet / Vehicle Details</h2>
+    <label>Paste your notes, email, or fleet schedule below</label>
+    <textarea id="rawText" placeholder="e.g. Please confirm the following vehicle added to the SANDY LOGISTICS fleet policy... Insurer: Drama Insurance Company, Policy MOB20252026, financed through WesBank..."></textarea>
+    <button class="btn" id="btnExtract" onclick="extractDetails()">Extract Details</button>
+    <div class="status" id="extractStatus"></div>
+  </div>
+
+  <div class="card hidden" id="reviewCard">
+    <h2>2. Review &amp; Confirm</h2>
+
+    <label>Insured Company</label>
+    <input type="text" id="insuredCompany">
+
+    <div class="field-row">
+      <div><label>Effective Date</label><input type="text" id="effectiveDate" placeholder="DD/MM/YYYY"></div>
+      <div><label>Letter Date</label><input type="text" id="letterDate" placeholder="DD/MM/YYYY"></div>
+    </div>
+
+    <div class="field-row">
+      <div><label>Insurer</label><input type="text" id="insurerName"></div>
+      <div><label>Policy Number</label><input type="text" id="policyNumber"></div>
+    </div>
+
+    <div class="field-row">
+      <div><label>Policy Inception Date</label><input type="text" id="policyInceptionDate" placeholder="DD/MM/YYYY"></div>
+      <div><label>Policy Renewal Date</label><input type="text" id="policyRenewalDate" placeholder="DD/MM/YYYY"></div>
+    </div>
+
+    <label>Financier (bank/finance company)</label>
+    <input type="text" id="financierName" placeholder="Leave blank if not financed">
+
+    <h2 style="margin-top:22px;">Vehicle Details</h2>
+
+    <label>Year, Make &amp; Model</label>
+    <input type="text" id="yearMakeModel">
+
+    <div class="field-row">
+      <div><label>M&amp;M Code</label><input type="text" id="mmCode"></div>
+      <div><label>Sum Insured</label><input type="text" id="sumInsured"></div>
+    </div>
+
+    <label>Extras</label>
+    <input type="text" id="extras" placeholder="e.g. TOW BAR: R8,000.00">
+
+    <div class="field-row">
+      <div><label>VIN Number</label><input type="text" id="vinNumber"></div>
+      <div><label>Engine Number</label><input type="text" id="engineNumber"></div>
+    </div>
+
+    <div class="field-row">
+      <div><label>Registration Number</label><input type="text" id="registrationNumber" placeholder="or T.B.A"></div>
+      <div><label>Use</label><input type="text" id="use" placeholder="e.g. BUSINESS &amp; PRIVATE"></div>
+    </div>
+
+    <div class="field-row">
+      <div><label>Tracking Device</label><input type="text" id="trackingDevice"></div>
+      <div><label>Credit Shortfall</label><input type="text" id="creditShortfall" placeholder="INCLUDED or NOT INCLUDED"></div>
+    </div>
+
+    <label>Registered Owner</label>
+    <input type="text" id="registeredOwner">
+
+    <label>Risk Address</label>
+    <input type="text" id="riskAddress">
+
+    <div class="note">This tool currently generates letters for <strong>one vehicle at a time</strong>. Multi-vehicle letters are coming in a future update.</div>
+
+    <button class="btn btn-gold" id="btnGenerate" onclick="generatePDF()">Generate Confirmation of Insurance (PDF)</button>
+    <div class="status" id="generateStatus"></div>
+  </div>
+
+</div>
+
+<script>
+const BACKEND = 'https://riya-coc-backend-production.up.railway.app';
+
+function getToken() {
+  return document.getElementById('brokerToken').value.trim();
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  const saved = localStorage.getItem('riya_coc_broker_token');
+  if (saved) document.getElementById('brokerToken').value = saved;
+  document.getElementById('brokerToken').addEventListener('change', function() {
+    localStorage.setItem('riya_coc_broker_token', this.value.trim());
+  });
+});
+
+async function extractDetails() {
+  const token = getToken();
+  const text = document.getElementById('rawText').value.trim();
+  const statusEl = document.getElementById('extractStatus');
+  const btn = document.getElementById('btnExtract');
+
+  if (!token) { statusEl.textContent = 'Please enter your broker token first.'; statusEl.className = 'status error'; return; }
+  if (!text) { statusEl.textContent = 'Please paste some details first.'; statusEl.className = 'status error'; return; }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Extracting details...';
+  statusEl.className = 'status';
+
+  try {
+    const res = await fetch(BACKEND + '/extract-coc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token, text: text })
+    });
+    const json = await res.json();
+    if (!res.ok || json.error) throw new Error(json.error || 'Extraction failed');
+
+    const d = json.data;
+    setVal('insuredCompany', d.insuredCompany);
+    setVal('effectiveDate', d.effectiveDate);
+    setVal('insurerName', d.insurerName);
+    setVal('policyNumber', d.policyNumber);
+    setVal('policyInceptionDate', d.policyInceptionDate);
+    setVal('policyRenewalDate', d.policyRenewalDate);
+    setVal('financierName', d.financierName);
+
+    const v = (d.vehicles && d.vehicles[0]) || {};
+    setVal('yearMakeModel', v.yearMakeModel);
+    setVal('mmCode', v.mmCode);
+    setVal('sumInsured', v.sumInsured);
+    setVal('extras', v.extras);
+    setVal('vinNumber', v.vinNumber);
+    setVal('engineNumber', v.engineNumber);
+    setVal('registrationNumber', v.registrationNumber);
+    setVal('use', v.use);
+    setVal('trackingDevice', v.trackingDevice);
+    setVal('creditShortfall', v.creditShortfall);
+    setVal('registeredOwner', v.registeredOwner);
+    setVal('riskAddress', v.riskAddress);
+
+    document.getElementById('reviewCard').classList.remove('hidden');
+    statusEl.textContent = 'Details extracted — review below before generating.';
+    statusEl.className = 'status success';
+
+    if (d.vehicles && d.vehicles.length > 1) {
+      statusEl.textContent = 'Extracted ' + d.vehicles.length + ' vehicles, but only the first is shown — multi-vehicle letters are not yet supported.';
+    }
+  } catch(e) {
+    statusEl.textContent = 'Error: ' + e.message;
+    statusEl.className = 'status error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val || '';
+}
+
+async function generatePDF() {
+  const token = getToken();
+  const statusEl = document.getElementById('generateStatus');
+  const btn = document.getElementById('btnGenerate');
+
+  if (!token) { statusEl.textContent = 'Please enter your broker token first.'; statusEl.className = 'status error'; return; }
+
+  const data = {
+    insuredCompany: document.getElementById('insuredCompany').value,
+    effectiveDate: document.getElementById('effectiveDate').value,
+    letterDate: document.getElementById('letterDate').value,
+    insurerName: document.getElementById('insurerName').value,
+    policyNumber: document.getElementById('policyNumber').value,
+    policyInceptionDate: document.getElementById('policyInceptionDate').value,
+    policyRenewalDate: document.getElementById('policyRenewalDate').value,
+    financierName: document.getElementById('financierName').value,
+    vehicles: [{
+      yearMakeModel: document.getElementById('yearMakeModel').value,
+      mmCode: document.getElementById('mmCode').value,
+      sumInsured: document.getElementById('sumInsured').value,
+      extras: document.getElementById('extras').value,
+      vinNumber: document.getElementById('vinNumber').value,
+      engineNumber: document.getElementById('engineNumber').value,
+      registrationNumber: document.getElementById('registrationNumber').value,
+      use: document.getElementById('use').value,
+      trackingDevice: document.getElementById('trackingDevice').value,
+      creditShortfall: document.getElementById('creditShortfall').value,
+      registeredOwner: document.getElementById('registeredOwner').value,
+      riskAddress: document.getElementById('riskAddress').value
+    }]
+  };
+
+  btn.disabled = true;
+  statusEl.textContent = 'Generating PDF...';
+  statusEl.className = 'status';
+
+  try {
+    const res = await fetch(BACKEND + '/generate-coc-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token, data: data })
+    });
+    if (!res.ok) {
+      const json = await res.json().catch(function() { return {}; });
+      throw new Error(json.error || 'Generation failed');
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Confirmation_of_Insurance_' + (data.insuredCompany || 'letter').replace(/[^a-z0-9]/gi, '_') + '.pdf';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+    statusEl.textContent = 'PDF downloaded successfully.';
+    statusEl.className = 'status success';
+  } catch(e) {
+    statusEl.textContent = 'Error: ' + e.message;
+    statusEl.className = 'status error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+
+</body>
 </html>
