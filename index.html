@@ -232,6 +232,7 @@
     <div class="coc-tabs">
       <button class="coc-tab active" data-tab="paste" onclick="switchCocTab('paste')">Paste Text</button>
       <button class="coc-tab" data-tab="file" onclick="switchCocTab('file')">Upload File</button>
+      <button class="coc-tab" data-tab="voice" onclick="switchCocTab('voice')">Voice Note</button>
     </div>
 
     <div class="coc-tab-content active" id="coc-tab-paste">
@@ -246,6 +247,22 @@
       <input type="file" id="cocFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" multiple>
       <button class="btn" id="btnExtractFile" onclick="extractFromFile()">Extract Details from File</button>
       <div class="status" id="fileExtractStatus"></div>
+    </div>
+
+    <div class="coc-tab-content" id="coc-tab-voice">
+      <label for="cocVoiceLanguage">Language spoken in this note</label>
+      <select id="cocVoiceLanguage">
+        <option value="auto">Auto-detect</option>
+        <option value="en">English</option>
+        <option value="af">Afrikaans</option>
+      </select>
+      <div class="coc-file-hint" style="margin-top:10px;">Record a voice note now, or upload a previously saved one (e.g. from WhatsApp). As with Upload File, extracting from a second note adds to what's already captured rather than replacing it.</div>
+      <div class="field-row" style="margin-top:6px;">
+        <button class="btn btn-outline" id="cocRecordBtn" onclick="toggleCocRecording()">🎤 Start Recording</button>
+        <input type="file" id="cocAudioInput" accept="audio/*">
+      </div>
+      <button class="btn" id="btnExtractVoice" onclick="extractFromVoice()">Extract Details from Voice Note</button>
+      <div class="status" id="voiceExtractStatus"></div>
     </div>
   </div>
 
@@ -424,6 +441,77 @@ function blobToBase64Coc(blob) {
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
+}
+
+// ── NEW: Voice Note recording + extraction ──
+let cocMediaRecorder = null;
+let cocRecordedChunks = [];
+let cocRecordedBlob = null;
+
+async function toggleCocRecording() {
+  const btn = document.getElementById('cocRecordBtn');
+  const statusEl = document.getElementById('voiceExtractStatus');
+  if (cocMediaRecorder && cocMediaRecorder.state === 'recording') {
+    cocMediaRecorder.stop();
+    btn.textContent = '🎤 Start Recording';
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    cocRecordedChunks = [];
+    cocMediaRecorder = new MediaRecorder(stream);
+    cocMediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) cocRecordedChunks.push(e.data); };
+    cocMediaRecorder.onstop = function() {
+      stream.getTracks().forEach(function(t) { t.stop(); });
+      cocRecordedBlob = new Blob(cocRecordedChunks, { type: 'audio/webm' });
+      statusEl.textContent = 'Recording captured — click "Extract Details from Voice Note" when ready.';
+      statusEl.className = 'status success';
+    };
+    cocMediaRecorder.start();
+    btn.textContent = '⏹ Stop Recording';
+    statusEl.textContent = 'Recording...';
+    statusEl.className = 'status';
+  } catch(err) {
+    statusEl.textContent = 'Could not access microphone: ' + err.message;
+    statusEl.className = 'status error';
+  }
+}
+
+async function extractFromVoice() {
+  const token = getToken();
+  const statusEl = document.getElementById('voiceExtractStatus');
+  const btn = document.getElementById('btnExtractVoice');
+  const language = document.getElementById('cocVoiceLanguage').value;
+  const uploadedFile = document.getElementById('cocAudioInput').files[0];
+  const audioBlob = uploadedFile || cocRecordedBlob;
+
+  if (!token) { statusEl.textContent = 'Please enter your broker token first.'; statusEl.className = 'status error'; return; }
+  if (!audioBlob) { statusEl.textContent = 'Record or upload a voice note first.'; statusEl.className = 'status error'; return; }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Transcribing and extracting...';
+  statusEl.className = 'status';
+
+  try {
+    const audioBase64 = await blobToBase64Coc(audioBlob);
+    const res = await fetch(BACKEND + '/extract-coc-voice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token, audioBase64: audioBase64, mimeType: audioBlob.type || 'audio/webm', language: language })
+    });
+    const json = await res.json();
+    if (!res.ok || json.error) throw new Error(json.error || 'Extraction failed');
+    const vehicleCount = applyCocExtractedData(json.data);
+    statusEl.textContent = 'Extracted ' + vehicleCount + ' vehicle' + (vehicleCount === 1 ? '' : 's') + ' from voice note — review below before generating.';
+    statusEl.className = 'status success';
+    cocRecordedBlob = null;
+    document.getElementById('cocAudioInput').value = '';
+  } catch(e) {
+    statusEl.textContent = 'Error: ' + e.message;
+    statusEl.className = 'status error';
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 async function extractFromFile() {
