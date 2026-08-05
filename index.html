@@ -198,6 +198,18 @@
     font-weight: 600;
   }
   .add-vehicle-row { margin-top: 14px; }
+
+  /* Smart Input tabs (Paste Text / Upload File) */
+  .coc-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .coc-tab {
+    flex: 1; background: none; border: none; padding: 10px; cursor: pointer;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px;
+    color: var(--muted); border-bottom: 2px solid transparent;
+  }
+  .coc-tab.active { color: var(--navy); border-bottom-color: var(--gold); font-weight: 700; }
+  .coc-tab-content { display: none; }
+  .coc-tab-content.active { display: block; }
+  .coc-file-hint { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -216,10 +228,25 @@
 
   <div class="card">
     <h2>1. Fleet / Vehicle Details</h2>
-    <label>Paste your notes, email, or fleet schedule below</label>
-    <textarea id="rawText" placeholder="e.g. Please confirm the following vehicle(s) added to the SANDY LOGISTICS fleet policy... Insurer: Drama Insurance Company, Policy MOB20252026, financed through WesBank..."></textarea>
-    <button class="btn" id="btnExtract" onclick="extractDetails()">Extract Details</button>
-    <div class="status" id="extractStatus"></div>
+
+    <div class="coc-tabs">
+      <button class="coc-tab active" data-tab="paste" onclick="switchCocTab('paste')">Paste Text</button>
+      <button class="coc-tab" data-tab="file" onclick="switchCocTab('file')">Upload File</button>
+    </div>
+
+    <div class="coc-tab-content active" id="coc-tab-paste">
+      <label>Paste your notes, email, or fleet schedule below</label>
+      <textarea id="rawText" placeholder="e.g. Please confirm the following vehicle(s) added to the SANDY LOGISTICS fleet policy... Insurer: Drama Insurance Company, Policy MOB20252026, financed through WesBank..."></textarea>
+      <button class="btn" id="btnExtract" onclick="extractDetails()">Extract Details</button>
+      <div class="status" id="extractStatus"></div>
+    </div>
+
+    <div class="coc-tab-content" id="coc-tab-file">
+      <div class="coc-file-hint">PDF or image (PNG/JPEG/WebP) only. Choose one file, or select several at once, and Extract & Populate — details from each are added to the review below rather than replacing what's already there, so you can build up a fleet confirmation from more than one document.</div>
+      <input type="file" id="cocFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" multiple>
+      <button class="btn" id="btnExtractFile" onclick="extractFromFile()">Extract Details from File</button>
+      <div class="status" id="fileExtractStatus"></div>
+    </div>
   </div>
 
   <div class="card hidden" id="reviewCard">
@@ -310,6 +337,50 @@ window.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+function switchCocTab(tab) {
+  document.querySelectorAll('.coc-tab').forEach(function(el) {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  document.querySelectorAll('.coc-tab-content').forEach(function(el) {
+    el.classList.remove('active');
+  });
+  document.getElementById('coc-tab-' + tab).classList.add('active');
+}
+
+// ── SHARED: applies one extraction result onto the current form state.
+// Scalar fields only fill if currently blank, so extracting from a second
+// document does not wipe out what the first document already supplied.
+// Vehicles are appended (not replaced), except when the only vehicle
+// present so far is still the untouched default row.
+function applyCocExtractedData(d) {
+  const scalarIds = ['insuredCompany', 'attentionName', 'attentionEmail', 'effectiveDate',
+    'insurerName', 'policyNumber', 'policyInceptionDate', 'policyRenewalDate', 'financierName'];
+  scalarIds.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el && !el.value && d[id]) el.value = d[id];
+  });
+
+  const extractedVehicles = (d.vehicles && d.vehicles.length) ? d.vehicles : [];
+  if (extractedVehicles.length) {
+    const onlyBlankDefault = vehicles.length === 1 &&
+      !vehicles[0].yearMakeModel && !vehicles[0].registrationNumber && !vehicles[0].vinNumber;
+    const newOnes = extractedVehicles.map(function(v) {
+      const nv = emptyVehicle();
+      nv._expanded = false;
+      Object.keys(nv).forEach(function(k) {
+        if (k.charAt(0) !== '_' && v[k] !== undefined) nv[k] = v[k];
+      });
+      return nv;
+    });
+    vehicles = onlyBlankDefault ? newOnes : vehicles.concat(newOnes);
+    if (vehicles.length === 1) vehicles[0]._expanded = true;
+  }
+
+  renderVehicles();
+  document.getElementById('reviewCard').classList.remove('hidden');
+  return extractedVehicles.length;
+}
+
 async function extractDetails() {
   const token = getToken();
   const text = document.getElementById('rawText').value.trim();
@@ -332,32 +403,61 @@ async function extractDetails() {
     const json = await res.json();
     if (!res.ok || json.error) throw new Error(json.error || 'Extraction failed');
 
-    const d = json.data;
-    setVal('insuredCompany', d.insuredCompany);
-    setVal('attentionName', d.attentionName);
-    setVal('attentionEmail', d.attentionEmail);
-    setVal('effectiveDate', d.effectiveDate);
-    setVal('letterDate', '');
-    setVal('insurerName', d.insurerName);
-    setVal('policyNumber', d.policyNumber);
-    setVal('policyInceptionDate', d.policyInceptionDate);
-    setVal('policyRenewalDate', d.policyRenewalDate);
-    setVal('financierName', d.financierName);
-
-    const extractedVehicles = (d.vehicles && d.vehicles.length) ? d.vehicles : [{}];
-    vehicles = extractedVehicles.map(function(v, i) {
-      const nv = emptyVehicle();
-      nv._expanded = extractedVehicles.length === 1; // auto-expand only when there's one
-      Object.keys(nv).forEach(function(k) {
-        if (k.charAt(0) !== '_' && v[k] !== undefined) nv[k] = v[k];
-      });
-      return nv;
-    });
-
-    renderVehicles();
-    document.getElementById('reviewCard').classList.remove('hidden');
-    statusEl.textContent = 'Extracted ' + vehicles.length + ' vehicle' + (vehicles.length === 1 ? '' : 's') + ' — review below before generating.';
+    const vehicleCount = applyCocExtractedData(json.data);
+    statusEl.textContent = 'Extracted ' + vehicleCount + ' vehicle' + (vehicleCount === 1 ? '' : 's') + ' — review below before generating.';
     statusEl.className = 'status success';
+  } catch(e) {
+    statusEl.textContent = 'Error: ' + e.message;
+    statusEl.className = 'status error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── NEW: Upload File extraction. Loops through however many files were
+// selected in the picker, extracting each in turn and merging results via
+// applyCocExtractedData (same merge logic used by Paste Text above).
+function blobToBase64Coc(blob) {
+  return new Promise(function(resolve, reject) {
+    const reader = new FileReader();
+    reader.onloadend = function() { resolve(reader.result.split(',')[1]); };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function extractFromFile() {
+  const token = getToken();
+  const fileInput = document.getElementById('cocFileInput');
+  const files = Array.from(fileInput.files);
+  const statusEl = document.getElementById('fileExtractStatus');
+  const btn = document.getElementById('btnExtractFile');
+
+  if (!token) { statusEl.textContent = 'Please enter your broker token first.'; statusEl.className = 'status error'; return; }
+  if (!files.length) { statusEl.textContent = 'Please choose a file first.'; statusEl.className = 'status error'; return; }
+
+  btn.disabled = true;
+  let totalVehicles = 0;
+
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      statusEl.textContent = 'Extracting file ' + (i + 1) + ' of ' + files.length + ': ' + file.name + '...';
+      statusEl.className = 'status';
+      const fileBase64 = await blobToBase64Coc(file);
+      const res = await fetch(BACKEND + '/extract-coc-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: token, fileBase64: fileBase64, mimeType: file.type })
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) throw new Error(json.error || 'Extraction failed on ' + file.name);
+      totalVehicles += applyCocExtractedData(json.data);
+    }
+    statusEl.textContent = 'Extracted from ' + files.length + ' file' + (files.length === 1 ? '' : 's') +
+      ' (' + totalVehicles + ' vehicle' + (totalVehicles === 1 ? '' : 's') + ') — review below before generating.';
+    statusEl.className = 'status success';
+    fileInput.value = '';
   } catch(e) {
     statusEl.textContent = 'Error: ' + e.message;
     statusEl.className = 'status error';
