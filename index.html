@@ -199,7 +199,7 @@
   }
   .add-vehicle-row { margin-top: 14px; }
 
-  /* Smart Input tabs (Paste Text / Upload File) */
+  /* Smart Input tabs (Paste Text / Upload File / Voice Note) */
   .coc-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
   .coc-tab {
     flex: 1; background: none; border: none; padding: 10px; cursor: pointer;
@@ -224,6 +224,7 @@
   <div class="token-box" id="tokenBox">
     <strong>Broker Token</strong>
     <input type="text" id="brokerToken" placeholder="Enter your broker token">
+    <div class="status" id="tokenStatus" style="margin-top:6px;"></div>
   </div>
 
   <div class="card">
@@ -346,11 +347,40 @@ function getToken() {
   return document.getElementById('brokerToken').value.trim();
 }
 
+async function validateCocToken() {
+  const token = getToken();
+  const statusEl = document.getElementById('tokenStatus');
+  if (!token) { statusEl.textContent = ''; return; }
+  statusEl.textContent = 'Checking...';
+  statusEl.className = 'status';
+  try {
+    const res = await fetch(BACKEND + '/validate-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token })
+    });
+    const json = await res.json();
+    if (json.valid) {
+      const creditsLeft = (json.broker && json.broker.credits !== undefined) ? json.broker.credits : null;
+      statusEl.textContent = '✓ ' + (json.broker.name || 'Broker') + ' verified' + (creditsLeft !== null ? ' — ' + creditsLeft + ' credits left' : '');
+      statusEl.className = 'status success';
+    } else {
+      statusEl.textContent = 'Invalid or inactive token';
+      statusEl.className = 'status error';
+    }
+  } catch(e) {
+    statusEl.textContent = 'Could not reach server';
+    statusEl.className = 'status error';
+  }
+}
+
 window.addEventListener('DOMContentLoaded', function() {
   const saved = localStorage.getItem('riya_coc_broker_token');
   if (saved) document.getElementById('brokerToken').value = saved;
+  validateCocToken();
   document.getElementById('brokerToken').addEventListener('change', function() {
     localStorage.setItem('riya_coc_broker_token', this.value.trim());
+    validateCocToken();
   });
 });
 
@@ -431,7 +461,7 @@ async function extractDetails() {
   }
 }
 
-// ── NEW: Upload File extraction. Loops through however many files were
+// ── Upload File extraction. Loops through however many files were
 // selected in the picker, extracting each in turn and merging results via
 // applyCocExtractedData (same merge logic used by Paste Text above).
 function blobToBase64Coc(blob) {
@@ -443,7 +473,47 @@ function blobToBase64Coc(blob) {
   });
 }
 
-// ── NEW: Voice Note recording + extraction ──
+async function extractFromFile() {
+  const token = getToken();
+  const fileInput = document.getElementById('cocFileInput');
+  const files = Array.from(fileInput.files);
+  const statusEl = document.getElementById('fileExtractStatus');
+  const btn = document.getElementById('btnExtractFile');
+
+  if (!token) { statusEl.textContent = 'Please enter your broker token first.'; statusEl.className = 'status error'; return; }
+  if (!files.length) { statusEl.textContent = 'Please choose a file first.'; statusEl.className = 'status error'; return; }
+
+  btn.disabled = true;
+  let totalVehicles = 0;
+
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      statusEl.textContent = 'Extracting file ' + (i + 1) + ' of ' + files.length + ': ' + file.name + '...';
+      statusEl.className = 'status';
+      const fileBase64 = await blobToBase64Coc(file);
+      const res = await fetch(BACKEND + '/extract-coc-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: token, fileBase64: fileBase64, mimeType: file.type })
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) throw new Error(json.error || 'Extraction failed on ' + file.name);
+      totalVehicles += applyCocExtractedData(json.data);
+    }
+    statusEl.textContent = 'Extracted from ' + files.length + ' file' + (files.length === 1 ? '' : 's') +
+      ' (' + totalVehicles + ' vehicle' + (totalVehicles === 1 ? '' : 's') + ') — review below before generating.';
+    statusEl.className = 'status success';
+    fileInput.value = '';
+  } catch(e) {
+    statusEl.textContent = 'Error: ' + e.message;
+    statusEl.className = 'status error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Voice Note recording + extraction ──
 let cocMediaRecorder = null;
 let cocRecordedChunks = [];
 let cocRecordedBlob = null;
@@ -514,46 +584,6 @@ async function extractFromVoice() {
   }
 }
 
-async function extractFromFile() {
-  const token = getToken();
-  const fileInput = document.getElementById('cocFileInput');
-  const files = Array.from(fileInput.files);
-  const statusEl = document.getElementById('fileExtractStatus');
-  const btn = document.getElementById('btnExtractFile');
-
-  if (!token) { statusEl.textContent = 'Please enter your broker token first.'; statusEl.className = 'status error'; return; }
-  if (!files.length) { statusEl.textContent = 'Please choose a file first.'; statusEl.className = 'status error'; return; }
-
-  btn.disabled = true;
-  let totalVehicles = 0;
-
-  try {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      statusEl.textContent = 'Extracting file ' + (i + 1) + ' of ' + files.length + ': ' + file.name + '...';
-      statusEl.className = 'status';
-      const fileBase64 = await blobToBase64Coc(file);
-      const res = await fetch(BACKEND + '/extract-coc-file', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: token, fileBase64: fileBase64, mimeType: file.type })
-      });
-      const json = await res.json();
-      if (!res.ok || json.error) throw new Error(json.error || 'Extraction failed on ' + file.name);
-      totalVehicles += applyCocExtractedData(json.data);
-    }
-    statusEl.textContent = 'Extracted from ' + files.length + ' file' + (files.length === 1 ? '' : 's') +
-      ' (' + totalVehicles + ' vehicle' + (totalVehicles === 1 ? '' : 's') + ') — review below before generating.';
-    statusEl.className = 'status success';
-    fileInput.value = '';
-  } catch(e) {
-    statusEl.textContent = 'Error: ' + e.message;
-    statusEl.className = 'status error';
-  } finally {
-    btn.disabled = false;
-  }
-}
-
 function setVal(id, val) {
   const el = document.getElementById(id);
   if (el) el.value = val || '';
@@ -588,7 +618,6 @@ function toggleVehicle(uid) {
 function updateVehicleField(uid, field, value) {
   const v = vehicles.find(function(v) { return v._uid === uid; });
   if (v) v[field] = value;
-  // Update summary line live without a full re-render (keeps focus in the input)
   const summaryMain = document.querySelector('#vcard_' + uid + ' .info .main');
   const summarySub = document.querySelector('#vcard_' + uid + ' .info .sub');
   if (summaryMain) summaryMain.textContent = vehicleSummaryMain(v);
