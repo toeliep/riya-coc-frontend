@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="af">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riya — Behoefteanalise</title>
+<style>
+  :root {
+    --navy: #1B2A4A;
+    --gold: #C9A84C;
+    --light: #F5F6FA;
+    --border: #DDE1EC;
+    --ink: #1a1a2e;
+    --muted: #6b7280;
+    --mono: 'Courier New', monospace;
+    --sans: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--light); color: var(--ink); min-height: 100vh; }
+
+  .header { background: var(--navy); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { color: white; font-size: 20px; font-weight: 700; }
+  .header span { color: var(--gold); font-size: 13px; }
+
+  .token-bar { background: white; border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 12px; }
+  .token-bar input { border: 1px solid var(--border); border-radius: 4px; padding: 6px 12px; font-size: 13px; font-family: var(--mono); width: 220px; }
+  .token-bar button { background: var(--navy); color: white; border: none; border-radius: 4px; padding: 6px 16px; font-size: 13px; cursor: pointer; }
+  .credits-badge { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+  .main { display: flex; gap: 0; min-height: calc(100vh - 110px); }
+  .left-panel { width: 420px; min-width: 420px; background: white; border-right: 1px solid var(--border); padding: 24px; overflow-y: auto; }
+  .right-panel { flex: 1; padding: 24px; overflow-y: auto; }
+
+  .section-label { font-size: 10px; font-family: var(--mono); letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; margin-top: 20px; display: block; }
+  .section-label:first-child { margin-top: 0; }
+
+  .field-group { margin-bottom: 14px; }
+  .field-group label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .field-group input, .field-group select, .field-group textarea { width: 100%; border: 1px solid var(--border); border-radius: 4px; padding: 7px 10px; font-size: 13px; font-family: var(--sans); background: white; }
+  .field-group textarea { min-height: 70px; resize: vertical; }
+
+  .smart-input-area { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 16px; }
+  .smart-tabs { display: flex; background: var(--light); border-bottom: 1px solid var(--border); }
+  .smart-tab { padding: 8px 14px; font-size: 12px; font-family: var(--mono); cursor: pointer; border: none; background: none; color: var(--muted); border-bottom: 2px solid transparent; }
+  .smart-tab.active { color: var(--navy); border-bottom-color: var(--gold); font-weight: 600; }
+  .smart-tab-content { padding: 12px; display: none; }
+  .smart-tab-content.active { display: block; }
+  .smart-tab-content textarea { width: 100%; border: 1px solid var(--border); border-radius: 4px; padding: 8px; font-size: 12px; min-height: 100px; resize: vertical; font-family: var(--sans); }
+
+  .si-status { font-size: 11px; margin-top: 6px; color: var(--muted); min-height: 16px; }
+  .si-status.ok { color: #166534; }
+  .si-status.bad { color: #991b1b; }
+
+  .btn-extract { width: 100%; background: var(--light); border: 1px solid var(--border); border-radius: 4px; padding: 8px; font-size: 12px; font-family: var(--mono); cursor: pointer; color: var(--navy); margin-bottom: 4px; }
+  .btn-extract:hover { background: var(--border); }
+  .btn-extract:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .voice-row { display: flex; gap: 6px; margin-top: 8px; }
+  .voice-row button { flex: 1; padding: 7px 8px; font-size: 12px; font-family: var(--mono); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; background: white; color: var(--navy); }
+  .voice-lang { font-size: 12px; border: 1px solid var(--border); border-radius: 4px; padding: 5px 6px; font-family: var(--mono); }
+
+  .btn-generate { width: 100%; background: var(--navy); color: white; border: none; border-radius: 4px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 16px; }
+  .btn-generate:hover { background: #253d6e; }
+  .btn-generate:disabled { background: var(--muted); cursor: not-allowed; }
+
+  .lang-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  .lang-row label { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .lang-row select { border: 1px solid var(--border); border-radius: 4px; padding: 5px 8px; font-size: 12px; font-family: var(--mono); }
+
+  .output-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 24px; min-height: 400px; }
+  .output-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: var(--muted); gap: 12px; }
+  .output-placeholder svg { opacity: 0.3; }
+  .output-text { font-size: 13.5px; line-height: 1.7; white-space: pre-wrap; font-family: var(--sans); }
+
+  .output-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .btn-action { background: white; border: 1px solid var(--border); border-radius: 4px; padding: 7px 14px; font-size: 12px; cursor: pointer; color: var(--navy); }
+  .btn-action:hover { background: var(--light); }
+  .btn-action.primary { background: var(--navy); color: white; border-color: var(--navy); }
+
+  .section-heading { font-weight: 700; color: var(--navy); font-size: 13px; margin-top: 16px; margin-bottom: 4px; border-bottom: 1px solid var(--gold); padding-bottom: 3px; }
+
+  .review-banner { background: #FFF8E6; border: 1px solid var(--gold); border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; font-size: 12px; color: #7a5c00; }
+  .review-banner strong { display: block; margin-bottom: 6px; }
+  .review-banner ul { padding-left: 16px; }
+
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .checkbox-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--navy); }
+  .checkbox-row label { font-size: 13px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Riya — Behoefteanalise</h1>
+  <span>FAIS-voldoende Behoefteanalise Opsteller</span>
+</div>
+
+<div class="token-bar">
+  <input type="text" id="tokenInput" placeholder="Makelaar token (bv. RIYA-GOMES-001)" />
+  <button onclick="setToken()">Aanmeld</button>
+  <span class="credits-badge" id="creditsBadge"></span>
+</div>
+
+<div class="main">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+
+    <span class="section-label">Slim Toevoer</span>
+    <div class="smart-input-area">
+      <div class="smart-tabs">
+        <button class="smart-tab active" onclick="switchTab(event,'paste')">Plak Teks</button>
+        <button class="smart-tab" onclick="switchTab(event,'file')">Laai Lêer Op</button>
+        <button class="smart-tab" onclick="switchTab(event,'voice')">Stemopname</button>
+      </div>
+
+      <!-- PASTE TEXT -->
+      <div class="smart-tab-content active" id="tab-paste">
+        <textarea id="pasteText" placeholder="Plak kliëntnotas, e-pos, of enige inligting hier..."></textarea>
+        <button class="btn-extract" onclick="extractFromPaste()">⚡ Onttrek &amp; Vul Vorm In</button>
+        <div class="si-status" id="pasteStatus"></div>
+      </div>
+
+      <!-- UPLOAD FILE -->
+      <div class="smart-tab-content" id="tab-file">
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt" multiple style="font-size:12px;width:100%;" />
+        <p style="font-size:11px;color:var(--muted);margin-top:6px;">PDF, Word, of teks. Meerdere lêers word saamgevoeg.</p>
+        <button class="btn-extract" style="margin-top:8px;" id="btnExtractFile" onclick="extractFromFile()">⚡ Onttrek &amp; Vul Vorm In</button>
+        <div class="si-status" id="fileStatus"></div>
+      </div>
+
+      <!-- VOICE NOTE -->
+      <div class="smart-tab-content" id="tab-voice">
+        <div class="voice-row">
+          <button id="recordBtn" onclick="toggleRecording()">🎤 Begin Opname</button>
+          <input type="file" id="audioInput" accept="audio/*" style="font-size:11px;flex:1;" />
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+          <label style="font-size:11px;color:var(--muted);">Taal:</label>
+          <select class="voice-lang" id="voiceLang">
+            <option value="">Outo-opsporing</option>
+            <option value="af">Afrikaans</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <button class="btn-extract" style="margin-top:8px;" id="btnExtractVoice" onclick="extractFromVoice()">⚡ Transkribeer &amp; Onttrek</button>
+        <div class="si-status" id="voiceStatus"></div>
+      </div>
+    </div>
+
+    <span class="section-label">FSP &amp; Verteenwoordiger</span>
+    <div class="field-group"><label>Makelaarnaam / FSP</label><input type="text" id="brokerName" /></div>
+    <div class="field-group"><label>FSP Nommer</label><input type="text" id="fspNumber" /></div>
+    <div class="field-group"><label>Verteenwoordiger Naam</label><input type="text" id="advisorName" /></div>
+    <div class="field-group"><label>Nakomingsbeampte</label><input type="text" id="complianceOfficer" /></div>
+    <div class="field-group"><label>Advies Datum</label><input type="date" id="adviceDate" /></div>
+    <div class="field-group"><label>Kommunikasiemetode</label><input type="text" id="commsMethod" placeholder="Bv. Persoonlike besoek, e-pos" /></div>
+
+    <span class="section-label">Kliëntbesonderhede</span>
+    <div class="field-group"><label>Kliëntnaam</label><input type="text" id="clientName" /></div>
+    <div class="field-group"><label>ID / Reg Nommer</label><input type="text" id="clientId" /></div>
+    <div class="field-group"><label>Kontaknommer</label><input type="text" id="clientContact" /></div>
+    <div class="field-group"><label>E-posadres</label><input type="text" id="clientEmail" /></div>
+    <div class="field-group"><label>Adres</label><input type="text" id="clientAddress" /></div>
+    <div class="field-group"><label>Beroep</label><input type="text" id="clientOccupation" /></div>
+
+    <span class="section-label">Motorvoertuie</span>
+    <div class="field-group"><label>Voertuig 1 (Jaar Maak Model)</label><input type="text" id="vehicle1" placeholder="2022 Toyota Hilux 2.8 GD-6" /></div>
+    <div class="field-group"><label>Voertuig 1 Gebruik</label>
+      <select id="vehicle1use"><option>Privaat</option><option>Sake</option><option>Kommersieel</option></select>
+    </div>
+    <div class="field-group"><label>Voertuig 1 Waarde (R)</label><input type="text" id="vehicle1value" /></div>
+    <div class="field-group"><label>Voertuig 2 (Jaar Maak Model)</label><input type="text" id="vehicle2" /></div>
+    <div class="field-group"><label>Voertuig 2 Waarde (R)</label><input type="text" id="vehicle2value" /></div>
+
+    <span class="section-label">Geboue</span>
+    <div class="field-group"><label>Eiendomstipe</label>
+      <select id="buildType"><option value="">-- Kies --</option><option>Vryehande eiendom</option><option>Deeltitelwoning</option><option>Huurder</option></select>
+    </div>
+    <div class="field-group"><label>Herbouwaarde (R)</label><input type="text" id="buildValue" /></div>
+    <div class="field-group"><label>Sekuriteitsmaatreëls</label><input type="text" id="buildSecurity" placeholder="Bv. Alarm, omheining, veiligheidsdeure" /></div>
+
+    <span class="section-label">Inhoud</span>
+    <div class="field-group"><label>Inhoudswaarde (R)</label><input type="text" id="contentsValue" /></div>
+    <div class="field-group"><label>Gespesifiseerde Items</label><textarea id="specifiedItems" placeholder="Bv. Laptop R25000; Horlosie R45000; Kamera R18000"></textarea></div>
+
+    <span class="section-label">Aanspreeklikheid</span>
+    <div class="field-group"><label>Persoonlike Aanspreeklikheidslimiet (R)</label><input type="text" id="liabilityLimit" /></div>
+
+    <span class="section-label">Bestaande Dekking &amp; Gapings</span>
+    <div class="field-group"><label>Bestaande Polisse</label><textarea id="existingCover" placeholder="Versekeraar, polisnommer, vervaldatum"></textarea></div>
+    <div class="field-group"><label>Geïdentifiseerde Gapings</label><textarea id="coverGaps" placeholder="Geen dekking vir..."></textarea></div>
+
+    <span class="section-label">KYC / FICA / POPIA</span>
+    <div class="checkbox-row"><input type="checkbox" id="kycId" /><label for="kycId">ID geverifieer — gesertifiseerde kopie ter lêer</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="kycAddr" /><label for="kycAddr">Adresbewys ter lêer (nie ouer as 3 maande)</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="popia" /><label for="popia">POPIA-toestemming onderteken</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="faisDisc" /><label for="faisDisc">FAIS-openbaarmaking verskaf en erken</label></div>
+    <div class="field-group"><label>Eisgeskiedenisnota</label><input type="text" id="claimsNotes" placeholder="Bv. Geen wesenlike eise" /></div>
+
+    <div class="lang-row">
+      <label>Taal / Language</label>
+      <select id="naLanguage">
+        <option value="af">Afrikaans</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+
+    <button class="btn-generate" id="btnGenerate" onclick="generateNA()">Genereer Behoefteanalise</button>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="output-card">
+      <div id="outputBody">
+        <div class="output-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p>Vul die vorm in en klik <strong>Genereer</strong></p>
+        </div>
+      </div>
+      <div id="outputActions" class="output-actions" style="display:none;">
+        <button class="btn-action" onclick="copyText()">Kopieer Teks</button>
+        <button class="btn-action primary" onclick="downloadPDF()">Laai PDF af</button>
+        <button class="btn-action" onclick="emailBroker()">E-pos aan Makelaar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BACKEND = 'https://riya-backend-production.up.railway.app';
+let brokerToken = localStorage.getItem('riya_na_token') || '';
+let generatedText = '';
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordedBlob = null;
+
+// ── Token & credits ──────────────────────────────────────────────────────────
+function setToken() {
+  brokerToken = document.getElementById('tokenInput').value.trim();
+  if (!brokerToken) return;
+  localStorage.setItem('riya_na_token', brokerToken);
+  checkCredits();
+}
+
+async function checkCredits() {
+  try {
+    const res = await fetch(BACKEND + '/credits?token=' + brokerToken);
+    const data = await res.json();
+    if (data.credits !== undefined)
+      document.getElementById('creditsBadge').textContent = 'Krediete: ' + data.credits;
+  } catch(e) {}
+}
+
+// ── UI helpers ───────────────────────────────────────────────────────────────
+function switchTab(e, tab) {
+  document.querySelectorAll('.smart-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.smart-tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  e.target.classList.add('active');
+}
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  if (!el) return '';
+  if (el.type === 'checkbox') return el.checked ? 'Ja — bevestig' : 'Nee';
+  return el.value || '';
+}
+
+function setStatus(id, msg, cls) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'si-status' + (cls ? ' ' + cls : '');
+}
+
+// ── Base64 helper ────────────────────────────────────────────────────────────
+function blobToBase64(blob) {
+  return new Promise(function(resolve, reject) {
+    const reader = new FileReader();
+    reader.onloadend = function() { resolve(reader.result.split(',')[1]); };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// ── Populate form from extracted JSON ────────────────────────────────────────
+function populateForm(f) {
+  const set = function(id, val) { const el = document.getElementById(id); if (el && val) el.value = val; };
+  set('brokerName', f.brokerName);
+  set('fspNumber', f.fspNumber);
+  set('advisorName', f.advisorName);
+  set('complianceOfficer', f.complianceOfficer);
+  set('commsMethod', f.clientCommsMethod);
+  set('clientName', f.clientName);
+  set('clientId', f.clientReg || f.clientId);
+  set('clientContact', f.clientContact);
+  set('clientEmail', f.clientEmail);
+  set('clientAddress', f.clientAddress);
+  set('clientOccupation', f.clientOccupation);
+  set('buildValue', f.buildValue);
+  set('buildSecurity', f.buildSecurity);
+  set('contentsValue', f.contentsSumInsured || f.contentsValue);
+  set('specifiedItems', f.scheduledItems || f.specifiedItems);
+  set('existingCover', f.existingCover);
+  set('coverGaps', f.coverGaps);
+  set('liabilityLimit', f.publicLiabilityLimit || f.liabilityLimit);
+  set('claimsNotes', f.claimsNotes);
+
+  if (f.vehicles && f.vehicles.length > 0) {
+    const v1 = f.vehicles[0];
+    document.getElementById('vehicle1').value = [v1.year, v1.make, v1.model].filter(Boolean).join(' ');
+    if (v1.retailValue || v1.sumInsured) document.getElementById('vehicle1value').value = v1.retailValue || v1.sumInsured;
+    if (v1.primaryUse) {
+      const use = v1.primaryUse.toLowerCase();
+      document.getElementById('vehicle1use').value = (use.includes('privaat') || use.includes('private')) ? 'Privaat' : (use.includes('kommersieel') || use.includes('commercial')) ? 'Kommersieel' : 'Sake';
+    }
+  }
+  if (f.vehicles && f.vehicles.length > 1) {
+    const v2 = f.vehicles[1];
+    document.getElementById('vehicle2').value = [v2.year, v2.make, v2.model].filter(Boolean).join(' ');
+    if (v2.retailValue || v2.sumInsured) document.getElementById('vehicle2value').value = v2.retailValue || v2.sumInsured;
+  }
+}
+
+// ── Shared: call /generate-roa mode=extract and parse JSON ───────────────────
+async function callExtract(userText) {
+  const res = await fetch(BACKEND + '/generate-roa', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: brokerToken || 'RIYA-TEST-0001', user: userText, mode: 'extract' })
+  });
+  const data = await res.json();
+  const raw = data.content?.map(b => b.text || '').join('') || '';
+  const start = raw.indexOf('{');
+  const end = raw.lastIndexOf('}');
+  if (start === -1 || end === -1) throw new Error('Geen JSON teruggegee');
+  return JSON.parse(raw.slice(start, end + 1));
+}
+
+// ── PASTE TEXT extraction ─────────────────────────────────────────────────────
+async function extractFromPaste() {
+  const text = document.getElementById('pasteText').value.trim();
+  if (!text) { setStatus('pasteStatus', 'Plak eers teks in.', 'bad'); return; }
+  setStatus('pasteStatus', 'Onttrek...');
+  try {
+    const f = await callExtract(text);
+    populateForm(f);
+    setStatus('pasteStatus', '✓ Onttrek — hersien alle velde voor generering.', 'ok');
+  } catch(e) {
+    setStatus('pasteStatus', 'Onttrekking misluk: ' + e.message, 'bad');
+  }
+}
+
+// ── UPLOAD FILE extraction ────────────────────────────────────────────────────
+async function extractFromFile() {
+  const fileInput = document.getElementById('fileInput');
+  const files = Array.from(fileInput.files);
+  if (!files.length) { setStatus('fileStatus', 'Kies eers \'n lêer.', 'bad'); return; }
+
+  const btn = document.getElementById('btnExtractFile');
+  btn.disabled = true;
+  let combinedText = '';
+
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setStatus('fileStatus', 'Verwerk lêer ' + (i + 1) + ' van ' + files.length + ': ' + file.name + '…');
+      const fileBase64 = await blobToBase64(file);
+      // /extract-pdf → returns { text: '...' }
+      const res = await fetch(BACKEND + '/extract-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: brokerToken || 'RIYA-TEST-0001', fileBase64: fileBase64, mimeType: file.type })
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || 'Lêer onttrekking misluk: ' + file.name);
+      combinedText += (data.text || '') + '\n\n';
+    }
+
+    setStatus('fileStatus', 'Velde onttrek...');
+    const f = await callExtract(combinedText.trim());
+    populateForm(f);
+    setStatus('fileStatus', '✓ Onttrek uit ' + files.length + ' lêer' + (files.length > 1 ? 's' : '') + ' — hersien voor generering.', 'ok');
+    fileInput.value = '';
+  } catch(e) {
+    setStatus('fileStatus', 'Fout: ' + e.message, 'bad');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── VOICE NOTE extraction ─────────────────────────────────────────────────────
+async function toggleRecording() {
+  const btn = document.getElementById('recordBtn');
+  const statusEl = document.getElementById('voiceStatus');
+
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+    btn.textContent = '🎤 Begin Opname';
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = function() {
+      stream.getTracks().forEach(function(t) { t.stop(); });
+      recordedBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+      setStatus('voiceStatus', 'Opname vasgelê — klik Transkribeer & Onttrek wanneer gereed.', 'ok');
+    };
+    mediaRecorder.start();
+    btn.textContent = '⏹ Stop Opname';
+    setStatus('voiceStatus', 'Neem op...');
+  } catch(err) {
+    setStatus('voiceStatus', 'Mikrofoon fout: ' + err.message, 'bad');
+  }
+}
+
+async function extractFromVoice() {
+  const uploadedFile = document.getElementById('audioInput').files[0];
+  const audioBlob = uploadedFile || recordedBlob;
+  if (!audioBlob) { setStatus('voiceStatus', 'Neem eers op of laai \'n stemopname op.', 'bad'); return; }
+
+  const btn = document.getElementById('btnExtractVoice');
+  btn.disabled = true;
+  setStatus('voiceStatus', 'Transkribeer...');
+
+  try {
+    const audioBase64 = await blobToBase64(audioBlob);
+    const language = document.getElementById('voiceLang').value;
+
+    // Step 1: transcribe → { transcript: '...' }
+    const tRes = await fetch(BACKEND + '/transcribe-voice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: brokerToken || 'RIYA-TEST-0001',
+        audioBase64: audioBase64,
+        mimeType: audioBlob.type || 'audio/webm',
+        language: language
+      })
+    });
+    const tData = await tRes.json();
+    if (!tRes.ok || tData.error) throw new Error(tData.error || 'Transkripsie misluk');
+    const transcript = tData.transcript || '';
+    if (!transcript) throw new Error('Leë transkripsie teruggegee');
+
+    setStatus('voiceStatus', 'Velde onttrek uit transkripsie...');
+
+    // Step 2: extract fields from transcript
+    const f = await callExtract(transcript);
+    populateForm(f);
+    setStatus('voiceStatus', '✓ Getranskribeer en onttrek — hersien alle velde voor generering.', 'ok');
+    recordedBlob = null;
+    document.getElementById('audioInput').value = '';
+  } catch(e) {
+    setStatus('voiceStatus', 'Fout: ' + e.message, 'bad');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Generate Needs Analysis ───────────────────────────────────────────────────
+async function generateNA() {
+  if (!brokerToken) { alert('Meld eers aan met jou token.'); return; }
+
+  const btn = document.getElementById('btnGenerate');
+  btn.disabled = true;
+  btn.textContent = 'Genereer...';
+
+  document.getElementById('outputBody').innerHTML = '<div class="output-placeholder"><div class="spinner"></div><p>Riya stel jou Behoefteanalise op...</p></div>';
+  document.getElementById('outputActions').style.display = 'none';
+
+  const lang = document.getElementById('naLanguage').value;
+  document.getElementById('adviceDate').value = document.getElementById('adviceDate').value || new Date().toISOString().slice(0,10);
+
+  let prompt = 'Genereer \'n volledige, FAIS-voldoende BEHOEFTEANALISE (Needs Analysis) dokument vir die volgende kliënt. Dit is NIE \'n Rekord van Advies nie — dit is \'n Behoefteanalise wat die kliënt se versekeringsbehoeftes identifiseer en dokumenteer per batekategorie.\n\n';
+  prompt += '--- FSP BESONDERHEDE ---\n';
+  prompt += 'Makelaar: ' + getVal('brokerName') + '\nFSP Nommer: ' + getVal('fspNumber') + '\nVerteenwoordiger: ' + getVal('advisorName') + '\nNakomingsbeampte: ' + getVal('complianceOfficer') + '\nAdvies Datum: ' + getVal('adviceDate') + '\nKommunikasiemetode: ' + getVal('commsMethod') + '\n\n';
+  prompt += '--- KLIËNTBESONDERHEDE ---\n';
+  prompt += 'Naam: ' + getVal('clientName') + '\nID/Reg: ' + getVal('clientId') + '\nKontaknommer: ' + getVal('clientContact') + '\nE-pos: ' + getVal('clientEmail') + '\nAdres: ' + getVal('clientAddress') + '\nBeroep: ' + getVal('clientOccupation') + '\n\n';
+  prompt += '--- KYC / FICA / POPIA ---\n';
+  prompt += 'ID geverifieer: ' + (document.getElementById('kycId').checked ? 'Ja — gesertifiseerde kopie ter lêer' : 'Uitstaande') + '\n';
+  prompt += 'Adresbewys: ' + (document.getElementById('kycAddr').checked ? 'Ja — ter lêer' : 'Uitstaande') + '\n';
+  prompt += 'POPIA-toestemming: ' + (document.getElementById('popia').checked ? 'Ja — onderteken' : 'Uitstaande') + '\n';
+  prompt += 'FAIS-openbaarmaking: ' + (document.getElementById('faisDisc').checked ? 'Ja — verskaf en erken' : 'Uitstaande') + '\n';
+  prompt += 'Eisgeskiedenisnota: ' + getVal('claimsNotes') + '\n\n';
+
+  if (getVal('vehicle1')) {
+    prompt += '--- MOTORVOERTUIE ---\nVoertuig 1: ' + getVal('vehicle1') + ' | Gebruik: ' + getVal('vehicle1use') + ' | Waarde: R' + getVal('vehicle1value') + '\n';
+    if (getVal('vehicle2')) prompt += 'Voertuig 2: ' + getVal('vehicle2') + ' | Waarde: R' + getVal('vehicle2value') + '\n';
+    prompt += '\n';
+  }
+  if (getVal('buildType')) {
+    prompt += '--- GEBOUE ---\nEiendomstipe: ' + getVal('buildType') + '\nHerbouwaarde: R' + getVal('buildValue') + '\nSekuriteit: ' + getVal('buildSecurity') + '\n\n';
+  }
+  if (getVal('contentsValue')) {
+    prompt += '--- INHOUD ---\nInhoudswaarde: R' + getVal('contentsValue') + '\n';
+    if (getVal('specifiedItems')) prompt += 'Gespesifiseerde items: ' + getVal('specifiedItems') + '\n';
+    prompt += '\n';
+  }
+  if (getVal('liabilityLimit')) {
+    prompt += '--- AANSPREEKLIKHEID ---\nPersoonlike aanspreeklikheidslimiet: R' + getVal('liabilityLimit') + '\n\n';
+  }
+  if (getVal('existingCover')) prompt += '--- BESTAANDE DEKKING ---\n' + getVal('existingCover') + '\n\n';
+  if (getVal('coverGaps')) prompt += '--- GEÏDENTIFISEERDE GAPINGS ---\n' + getVal('coverGaps') + '\n\n';
+
+  const systemPrompt = lang === 'af'
+    ? 'Jy is \'n FAIS-nakomingsassistent. Stel \'n volledige, professionele Behoefteanalise op in Afrikaans. Die dokument moet dek: 1. FSP- en Verteenwoordigerbesonderhede 2. Kliëntidentifikasie, KYC, FICA en POPIA 3. Behoefteanalise per batekategorie (motor, geboue, inhoud, aanspreeklikheid) — elke kategorie kry \'n eie paragraaf wat die behoefte, die risiko, en die aanbevole dekkingstipe verduidelik 4. Bestaande Dekking en Gapings 5. Kliënt Aanvaardingsrekord met handtekeningblok. Skryf in vloeiende professionele Afrikaans. Gebruik slegs genommerde opskrifte — geen markdown nie. Elke batekategorie wat aangebied word, MOET bespreek word. Moenie fabriseer nie — gebruik slegs die inligting wat verskaf is.'
+    : 'You are a FAIS compliance assistant. Produce a complete, professional Needs Analysis document in English. The document must cover: 1. FSP and Representative Details 2. Client Identification, KYC, FICA and POPIA 3. Needs Analysis per asset category (motor, buildings, contents, liability) — each category gets its own paragraph explaining the need, the risk, and the recommended cover type 4. Existing Cover and Gaps 5. Client Acceptance Record with signature block. Write in fluent professional English. Use numbered headings only — no markdown. Every asset category presented MUST be discussed. Do not fabricate — use only the information provided.';
+
+  try {
+    const res = await fetch(BACKEND + '/generate-roa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: brokerToken, user: prompt, mode: 'roa', language: lang, naMode: true })
+    });
+    const data = await res.json();
+    generatedText = data.content?.map(b => b.text || '').join('') || '';
+    renderOutput(generatedText, data.warnings || []);
+    document.getElementById('outputActions').style.display = 'flex';
+    checkCredits();
+  } catch(e) {
+    document.getElementById('outputBody').innerHTML = '<p style="color:red;padding:16px;">Generering misluk: ' + e.message + '</p>';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Genereer Behoefteanalise';
+}
+
+function renderOutput(text, warnings) {
+  let html = '';
+  if (warnings && warnings.length > 0) {
+    html += '<div class="review-banner"><strong>Lees deur voordat jy stuur — ' + warnings.length + ' item(s) gemerk:</strong><ul>';
+    warnings.forEach(function(w) { html += '<li>' + w + '</li>'; });
+    html += '</ul></div>';
+  }
+  text.split('\n').forEach(function(line) {
+    const trimmed = line.trim();
+    if (!trimmed) { html += '<br>'; return; }
+    if (/^\d+\.\s+[A-Z\u00C0-\u024F].{2,}/.test(trimmed)) {
+      html += '<div class="section-heading">' + trimmed + '</div>';
+    } else {
+      html += '<div class="output-text">' + trimmed + '</div>';
+    }
+  });
+  document.getElementById('outputBody').innerHTML = html;
+}
+
+function copyText() { navigator.clipboard.writeText(generatedText); }
+
+async function downloadPDF() {
+  if (!generatedText) return;
+  try {
+    const res = await fetch(BACKEND + '/generate-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: generatedText,
+        clientName: getVal('clientName'),
+        fspName: getVal('brokerName'),
+        triggerLabel: 'Behoefteanalise',
+        adviceDate: getVal('adviceDate'),
+        brokerToken: brokerToken
+      })
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Behoefteanalise-' + (getVal('clientName') || 'Klient').replace(/\s+/g, '') + '.pdf';
+    a.click();
+  } catch(e) { alert('PDF aflaai misluk: ' + e.message); }
+}
+
+async function emailBroker() {
+  if (!generatedText || !brokerToken) return;
+  try {
+    await fetch(BACKEND + '/send-roa-to-broker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: brokerToken, roaText: generatedText, clientName: getVal('clientName'), triggerLabel: 'Behoefteanalise' })
+    });
+    alert('E-pos gestuur aan makelaar!');
+  } catch(e) { alert('E-pos misluk: ' + e.message); }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.onload = function() {
+  if (brokerToken) {
+    document.getElementById('tokenInput').value = brokerToken;
+    checkCredits();
+  }
+  document.getElementById('adviceDate').value = new Date().toISOString().slice(0,10);
+};
+</script>
+</body>
+</html>
