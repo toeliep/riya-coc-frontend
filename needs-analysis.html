@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="af">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Riya — Behoefteanalise</title>
+<title>Riya — Needs Analysis</title>
 <style>
   :root {
     --navy: #1B2A4A;
@@ -94,13 +94,13 @@
 <body>
 
 <div class="header">
-  <h1>Riya — Behoefteanalise</h1>
-  <span>FAIS-voldoende Behoefteanalise Opsteller</span>
+  <h1>Riya — Needs Analysis</h1>
+  <span>FAIS-Compliant Needs Analysis Generator</span>
 </div>
 
 <div class="token-bar">
-  <input type="text" id="tokenInput" placeholder="Makelaar token (bv. RIYA-GOMES-001)" />
-  <button onclick="setToken()">Aanmeld</button>
+  <input type="text" id="tokenInput" placeholder="Broker token (e.g. RIYA-GOMES-001)" />
+  <button onclick="setToken()">Login</button>
   <span class="credits-badge" id="creditsBadge"></span>
 </div>
 
@@ -108,107 +108,107 @@
   <!-- LEFT PANEL -->
   <div class="left-panel">
 
-    <span class="section-label">Slim Toevoer</span>
+    <span class="section-label">Smart Input</span>
     <div class="smart-input-area">
       <div class="smart-tabs">
-        <button class="smart-tab active" onclick="switchTab(event,'paste')">Plak Teks</button>
-        <button class="smart-tab" onclick="switchTab(event,'file')">Laai Lêer Op</button>
-        <button class="smart-tab" onclick="switchTab(event,'voice')">Stemopname</button>
+        <button class="smart-tab active" onclick="switchTab(event,'paste')">Paste Text</button>
+        <button class="smart-tab" onclick="switchTab(event,'file')">Upload File</button>
+        <button class="smart-tab" onclick="switchTab(event,'voice')">Voice Note</button>
       </div>
 
       <!-- PASTE TEXT -->
       <div class="smart-tab-content active" id="tab-paste">
-        <textarea id="pasteText" placeholder="Plak kliëntnotas, e-pos, of enige inligting hier..."></textarea>
-        <button class="btn-extract" onclick="extractFromPaste()">⚡ Onttrek &amp; Vul Vorm In</button>
+        <textarea id="pasteText" placeholder="Paste client notes, email, or any information here..."></textarea>
+        <button class="btn-extract" onclick="extractFromPaste()">⚡ Extract & Populate</button>
         <div class="si-status" id="pasteStatus"></div>
       </div>
 
       <!-- UPLOAD FILE -->
       <div class="smart-tab-content" id="tab-file">
         <input type="file" id="fileInput" accept=".pdf,.docx,.txt" multiple style="font-size:12px;width:100%;" />
-        <p style="font-size:11px;color:var(--muted);margin-top:6px;">PDF, Word, of teks. Meerdere lêers word saamgevoeg.</p>
-        <button class="btn-extract" style="margin-top:8px;" id="btnExtractFile" onclick="extractFromFile()">⚡ Onttrek &amp; Vul Vorm In</button>
+        <p style="font-size:11px;color:var(--muted);margin-top:6px;">PDF, Word, or text. Multiple files supported.</p>
+        <button class="btn-extract" style="margin-top:8px;" id="btnExtractFile" onclick="extractFromFile()">⚡ Extract & Populate</button>
         <div class="si-status" id="fileStatus"></div>
       </div>
 
       <!-- VOICE NOTE -->
       <div class="smart-tab-content" id="tab-voice">
         <div class="voice-row">
-          <button id="recordBtn" onclick="toggleRecording()">🎤 Begin Opname</button>
+          <button id="recordBtn" onclick="toggleRecording()">🎤 Start Recording</button>
           <input type="file" id="audioInput" accept="audio/*" style="font-size:11px;flex:1;" />
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-          <label style="font-size:11px;color:var(--muted);">Taal:</label>
+          <label style="font-size:11px;color:var(--muted);">Language:</label>
           <select class="voice-lang" id="voiceLang">
-            <option value="">Outo-opsporing</option>
-            <option value="af">Afrikaans</option>
+            <option value="">Auto-detect</option>
             <option value="en">English</option>
+            <option value="af">Afrikaans</option>
           </select>
         </div>
-        <button class="btn-extract" style="margin-top:8px;" id="btnExtractVoice" onclick="extractFromVoice()">⚡ Transkribeer &amp; Onttrek</button>
+        <button class="btn-extract" style="margin-top:8px;" id="btnExtractVoice" onclick="extractFromVoice()">⚡ Transcribe & Extract</button>
         <div class="si-status" id="voiceStatus"></div>
       </div>
     </div>
 
-    <span class="section-label">FSP &amp; Verteenwoordiger</span>
-    <div class="field-group"><label>Makelaarnaam / FSP</label><input type="text" id="brokerName" /></div>
-    <div class="field-group"><label>FSP Nommer</label><input type="text" id="fspNumber" /></div>
-    <div class="field-group"><label>Verteenwoordiger Naam</label><input type="text" id="advisorName" /></div>
-    <div class="field-group"><label>Nakomingsbeampte</label><input type="text" id="complianceOfficer" /></div>
-    <div class="field-group"><label>Advies Datum</label><input type="date" id="adviceDate" /></div>
-    <div class="field-group"><label>Kommunikasiemetode</label><input type="text" id="commsMethod" placeholder="Bv. Persoonlike besoek, e-pos" /></div>
+    <span class="section-label">FSP & Representative</span>
+    <div class="field-group"><label>Broker Name / FSP</label><input type="text" id="brokerName" /></div>
+    <div class="field-group"><label>FSP Number</label><input type="text" id="fspNumber" /></div>
+    <div class="field-group"><label>Representative Name</label><input type="text" id="advisorName" /></div>
+    <div class="field-group"><label>Compliance Officer</label><input type="text" id="complianceOfficer" /></div>
+    <div class="field-group"><label>Advice Date</label><input type="date" id="adviceDate" /></div>
+    <div class="field-group"><label>Communication Method</label><input type="text" id="commsMethod" placeholder="e.g. Personal visit, email, telephone" /></div>
 
-    <span class="section-label">Kliëntbesonderhede</span>
-    <div class="field-group"><label>Kliëntnaam</label><input type="text" id="clientName" /></div>
-    <div class="field-group"><label>ID / Reg Nommer</label><input type="text" id="clientId" /></div>
-    <div class="field-group"><label>Kontaknommer</label><input type="text" id="clientContact" /></div>
-    <div class="field-group"><label>E-posadres</label><input type="text" id="clientEmail" /></div>
-    <div class="field-group"><label>Adres</label><input type="text" id="clientAddress" /></div>
-    <div class="field-group"><label>Beroep</label><input type="text" id="clientOccupation" /></div>
+    <span class="section-label">Client Details</span>
+    <div class="field-group"><label>Client Name</label><input type="text" id="clientName" /></div>
+    <div class="field-group"><label>ID / Registration Number</label><input type="text" id="clientId" /></div>
+    <div class="field-group"><label>Contact Number</label><input type="text" id="clientContact" /></div>
+    <div class="field-group"><label>Email Address</label><input type="text" id="clientEmail" /></div>
+    <div class="field-group"><label>Address</label><input type="text" id="clientAddress" /></div>
+    <div class="field-group"><label>Occupation</label><input type="text" id="clientOccupation" /></div>
 
-    <span class="section-label">Motorvoertuie</span>
-    <div class="field-group"><label>Voertuig 1 (Jaar Maak Model)</label><input type="text" id="vehicle1" placeholder="2022 Toyota Hilux 2.8 GD-6" /></div>
-    <div class="field-group"><label>Voertuig 1 Gebruik</label>
-      <select id="vehicle1use"><option>Privaat</option><option>Sake</option><option>Kommersieel</option></select>
+    <span class="section-label">Motor Vehicles</span>
+    <div class="field-group"><label>Vehicle 1 (Year Make Model)</label><input type="text" id="vehicle1" placeholder="2022 Toyota Hilux 2.8 GD-6" /></div>
+    <div class="field-group"><label>Vehicle 1 Use</label>
+      <select id="vehicle1use"><option>Private</option><option>Business</option><option>Commercial</option></select>
     </div>
-    <div class="field-group"><label>Voertuig 1 Waarde (R)</label><input type="text" id="vehicle1value" /></div>
-    <div class="field-group"><label>Voertuig 2 (Jaar Maak Model)</label><input type="text" id="vehicle2" /></div>
-    <div class="field-group"><label>Voertuig 2 Waarde (R)</label><input type="text" id="vehicle2value" /></div>
+    <div class="field-group"><label>Vehicle 1 Value (R)</label><input type="text" id="vehicle1value" /></div>
+    <div class="field-group"><label>Vehicle 2 (Year Make Model)</label><input type="text" id="vehicle2" /></div>
+    <div class="field-group"><label>Vehicle 2 Value (R)</label><input type="text" id="vehicle2value" /></div>
 
-    <span class="section-label">Geboue</span>
-    <div class="field-group"><label>Eiendomstipe</label>
-      <select id="buildType"><option value="">-- Kies --</option><option>Vryehande eiendom</option><option>Deeltitelwoning</option><option>Huurder</option></select>
+    <span class="section-label">Buildings</span>
+    <div class="field-group"><label>Property Type</label>
+      <select id="buildType"><option value="">-- Select --</option><option>Freehold property</option><option>Sectional title</option><option>Tenant</option></select>
     </div>
-    <div class="field-group"><label>Herbouwaarde (R)</label><input type="text" id="buildValue" /></div>
-    <div class="field-group"><label>Sekuriteitsmaatreëls</label><input type="text" id="buildSecurity" placeholder="Bv. Alarm, omheining, veiligheidsdeure" /></div>
+    <div class="field-group"><label>Rebuild Value (R)</label><input type="text" id="buildValue" /></div>
+    <div class="field-group"><label>Security Measures</label><input type="text" id="buildSecurity" placeholder="e.g. Alarm, electric fence, security gates" /></div>
 
-    <span class="section-label">Inhoud</span>
-    <div class="field-group"><label>Inhoudswaarde (R)</label><input type="text" id="contentsValue" /></div>
-    <div class="field-group"><label>Gespesifiseerde Items</label><textarea id="specifiedItems" placeholder="Bv. Laptop R25000; Horlosie R45000; Kamera R18000"></textarea></div>
+    <span class="section-label">Contents</span>
+    <div class="field-group"><label>Contents Value (R)</label><input type="text" id="contentsValue" /></div>
+    <div class="field-group"><label>Specified / Scheduled Items</label><textarea id="specifiedItems" placeholder="e.g. Laptop R25000; Watch R45000; Camera R18000"></textarea></div>
 
-    <span class="section-label">Aanspreeklikheid</span>
-    <div class="field-group"><label>Persoonlike Aanspreeklikheidslimiet (R)</label><input type="text" id="liabilityLimit" /></div>
+    <span class="section-label">Liability</span>
+    <div class="field-group"><label>Personal Liability Limit (R)</label><input type="text" id="liabilityLimit" /></div>
 
-    <span class="section-label">Bestaande Dekking &amp; Gapings</span>
-    <div class="field-group"><label>Bestaande Polisse</label><textarea id="existingCover" placeholder="Versekeraar, polisnommer, vervaldatum"></textarea></div>
-    <div class="field-group"><label>Geïdentifiseerde Gapings</label><textarea id="coverGaps" placeholder="Geen dekking vir..."></textarea></div>
+    <span class="section-label">Existing Cover & Gaps</span>
+    <div class="field-group"><label>Existing Policies</label><textarea id="existingCover" placeholder="Insurer, policy number, expiry date"></textarea></div>
+    <div class="field-group"><label>Identified Gaps</label><textarea id="coverGaps" placeholder="No cover for..."></textarea></div>
 
     <span class="section-label">KYC / FICA / POPIA</span>
-    <div class="checkbox-row"><input type="checkbox" id="kycId" /><label for="kycId">ID geverifieer — gesertifiseerde kopie ter lêer</label></div>
-    <div class="checkbox-row"><input type="checkbox" id="kycAddr" /><label for="kycAddr">Adresbewys ter lêer (nie ouer as 3 maande)</label></div>
-    <div class="checkbox-row"><input type="checkbox" id="popia" /><label for="popia">POPIA-toestemming onderteken</label></div>
-    <div class="checkbox-row"><input type="checkbox" id="faisDisc" /><label for="faisDisc">FAIS-openbaarmaking verskaf en erken</label></div>
-    <div class="field-group"><label>Eisgeskiedenisnota</label><input type="text" id="claimsNotes" placeholder="Bv. Geen wesenlike eise" /></div>
+    <div class="checkbox-row"><input type="checkbox" id="kycId" /><label for="kycId">ID verified — certified copy on file</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="kycAddr" /><label for="kycAddr">Proof of address on file (not older than 3 months)</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="popia" /><label for="popia">POPIA consent signed</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="faisDisc" /><label for="faisDisc">FAIS disclosure provided and acknowledged</label></div>
+    <div class="field-group"><label>Claims History Note</label><input type="text" id="claimsNotes" placeholder="e.g. No material claims" /></div>
 
     <div class="lang-row">
-      <label>Taal / Language</label>
+      <label>Output Language</label>
       <select id="naLanguage">
-        <option value="af">Afrikaans</option>
         <option value="en">English</option>
+        <option value="af">Afrikaans</option>
       </select>
     </div>
 
-    <button class="btn-generate" id="btnGenerate" onclick="generateNA()">Genereer Behoefteanalise</button>
+    <button class="btn-generate" id="btnGenerate" onclick="generateNA()">Generate Needs Analysis</button>
 
   </div>
 
@@ -220,13 +220,13 @@
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          <p>Vul die vorm in en klik <strong>Genereer</strong></p>
+          <p>Fill in the form and click <strong>Generate</strong></p>
         </div>
       </div>
       <div id="outputActions" class="output-actions" style="display:none;">
-        <button class="btn-action" onclick="copyText()">Kopieer Teks</button>
-        <button class="btn-action primary" onclick="downloadPDF()">Laai PDF af</button>
-        <button class="btn-action" onclick="emailBroker()">E-pos aan Makelaar</button>
+        <button class="btn-action" onclick="copyText()">Copy Text</button>
+        <button class="btn-action primary" onclick="downloadPDF()">Download PDF</button>
+        <button class="btn-action" onclick="emailBroker()">Email to Broker</button>
       </div>
     </div>
   </div>
@@ -240,7 +240,6 @@ let mediaRecorder = null;
 let recordedChunks = [];
 let recordedBlob = null;
 
-// ── Token & credits ──────────────────────────────────────────────────────────
 function setToken() {
   brokerToken = document.getElementById('tokenInput').value.trim();
   if (!brokerToken) return;
@@ -253,11 +252,10 @@ async function checkCredits() {
     const res = await fetch(BACKEND + '/credits?token=' + brokerToken);
     const data = await res.json();
     if (data.credits !== undefined)
-      document.getElementById('creditsBadge').textContent = 'Krediete: ' + data.credits;
+      document.getElementById('creditsBadge').textContent = 'Credits: ' + data.credits;
   } catch(e) {}
 }
 
-// ── UI helpers ───────────────────────────────────────────────────────────────
 function switchTab(e, tab) {
   document.querySelectorAll('.smart-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.smart-tab-content').forEach(t => t.classList.remove('active'));
@@ -268,7 +266,7 @@ function switchTab(e, tab) {
 function getVal(id) {
   const el = document.getElementById(id);
   if (!el) return '';
-  if (el.type === 'checkbox') return el.checked ? 'Ja — bevestig' : 'Nee';
+  if (el.type === 'checkbox') return el.checked ? 'Yes — confirmed' : 'No';
   return el.value || '';
 }
 
@@ -279,7 +277,6 @@ function setStatus(id, msg, cls) {
   el.className = 'si-status' + (cls ? ' ' + cls : '');
 }
 
-// ── Base64 helper ────────────────────────────────────────────────────────────
 function blobToBase64(blob) {
   return new Promise(function(resolve, reject) {
     const reader = new FileReader();
@@ -289,7 +286,6 @@ function blobToBase64(blob) {
   });
 }
 
-// ── Populate form from extracted JSON ────────────────────────────────────────
 function populateForm(f) {
   const set = function(id, val) { const el = document.getElementById(id); if (el && val) el.value = val; };
   set('brokerName', f.brokerName);
@@ -318,7 +314,7 @@ function populateForm(f) {
     if (v1.retailValue || v1.sumInsured) document.getElementById('vehicle1value').value = v1.retailValue || v1.sumInsured;
     if (v1.primaryUse) {
       const use = v1.primaryUse.toLowerCase();
-      document.getElementById('vehicle1use').value = (use.includes('privaat') || use.includes('private')) ? 'Privaat' : (use.includes('kommersieel') || use.includes('commercial')) ? 'Kommersieel' : 'Sake';
+      document.getElementById('vehicle1use').value = (use.includes('private') || use.includes('privaat')) ? 'Private' : use.includes('commercial') ? 'Commercial' : 'Business';
     }
   }
   if (f.vehicles && f.vehicles.length > 1) {
@@ -328,7 +324,6 @@ function populateForm(f) {
   }
 }
 
-// ── Shared: call /generate-roa mode=extract and parse JSON ───────────────────
 async function callExtract(userText) {
   const res = await fetch(BACKEND + '/generate-roa', {
     method: 'POST',
@@ -339,29 +334,27 @@ async function callExtract(userText) {
   const raw = data.content?.map(b => b.text || '').join('') || '';
   const start = raw.indexOf('{');
   const end = raw.lastIndexOf('}');
-  if (start === -1 || end === -1) throw new Error('Geen JSON teruggegee');
+  if (start === -1 || end === -1) throw new Error('No JSON returned from extraction');
   return JSON.parse(raw.slice(start, end + 1));
 }
 
-// ── PASTE TEXT extraction ─────────────────────────────────────────────────────
 async function extractFromPaste() {
   const text = document.getElementById('pasteText').value.trim();
-  if (!text) { setStatus('pasteStatus', 'Plak eers teks in.', 'bad'); return; }
-  setStatus('pasteStatus', 'Onttrek...');
+  if (!text) { setStatus('pasteStatus', 'Paste some text first.', 'bad'); return; }
+  setStatus('pasteStatus', 'Extracting...');
   try {
     const f = await callExtract(text);
     populateForm(f);
-    setStatus('pasteStatus', '✓ Onttrek — hersien alle velde voor generering.', 'ok');
+    setStatus('pasteStatus', '✓ Extracted — review all fields before generating.', 'ok');
   } catch(e) {
-    setStatus('pasteStatus', 'Onttrekking misluk: ' + e.message, 'bad');
+    setStatus('pasteStatus', 'Extraction failed: ' + e.message, 'bad');
   }
 }
 
-// ── UPLOAD FILE extraction ────────────────────────────────────────────────────
 async function extractFromFile() {
   const fileInput = document.getElementById('fileInput');
   const files = Array.from(fileInput.files);
-  if (!files.length) { setStatus('fileStatus', 'Kies eers \'n lêer.', 'bad'); return; }
+  if (!files.length) { setStatus('fileStatus', 'Choose a file first.', 'bad'); return; }
 
   const btn = document.getElementById('btnExtractFile');
   btn.disabled = true;
@@ -370,42 +363,36 @@ async function extractFromFile() {
   try {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      setStatus('fileStatus', 'Verwerk lêer ' + (i + 1) + ' van ' + files.length + ': ' + file.name + '…');
+      setStatus('fileStatus', 'Processing file ' + (i + 1) + ' of ' + files.length + ': ' + file.name + '...');
       const fileBase64 = await blobToBase64(file);
-      // /extract-pdf → returns { text: '...' }
       const res = await fetch(BACKEND + '/extract-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: brokerToken || 'RIYA-TEST-0001', fileBase64: fileBase64, mimeType: file.type })
       });
       const data = await res.json();
-      if (!res.ok || data.error) throw new Error(data.error || 'Lêer onttrekking misluk: ' + file.name);
+      if (!res.ok || data.error) throw new Error(data.error || 'File extraction failed: ' + file.name);
       combinedText += (data.text || '') + '\n\n';
     }
-
-    setStatus('fileStatus', 'Velde onttrek...');
+    setStatus('fileStatus', 'Running field extraction...');
     const f = await callExtract(combinedText.trim());
     populateForm(f);
-    setStatus('fileStatus', '✓ Onttrek uit ' + files.length + ' lêer' + (files.length > 1 ? 's' : '') + ' — hersien voor generering.', 'ok');
+    setStatus('fileStatus', '✓ Extracted from ' + files.length + ' file' + (files.length > 1 ? 's' : '') + ' — review before generating.', 'ok');
     fileInput.value = '';
   } catch(e) {
-    setStatus('fileStatus', 'Fout: ' + e.message, 'bad');
+    setStatus('fileStatus', 'Error: ' + e.message, 'bad');
   } finally {
     btn.disabled = false;
   }
 }
 
-// ── VOICE NOTE extraction ─────────────────────────────────────────────────────
 async function toggleRecording() {
   const btn = document.getElementById('recordBtn');
-  const statusEl = document.getElementById('voiceStatus');
-
   if (mediaRecorder && mediaRecorder.state === 'recording') {
     mediaRecorder.stop();
-    btn.textContent = '🎤 Begin Opname';
+    btn.textContent = '🎤 Start Recording';
     return;
   }
-
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     recordedChunks = [];
@@ -414,108 +401,98 @@ async function toggleRecording() {
     mediaRecorder.onstop = function() {
       stream.getTracks().forEach(function(t) { t.stop(); });
       recordedBlob = new Blob(recordedChunks, { type: 'audio/webm' });
-      setStatus('voiceStatus', 'Opname vasgelê — klik Transkribeer & Onttrek wanneer gereed.', 'ok');
+      setStatus('voiceStatus', 'Recording captured — click Transcribe & Extract when ready.', 'ok');
     };
     mediaRecorder.start();
-    btn.textContent = '⏹ Stop Opname';
-    setStatus('voiceStatus', 'Neem op...');
+    btn.textContent = '⏹ Stop Recording';
+    setStatus('voiceStatus', 'Recording...');
   } catch(err) {
-    setStatus('voiceStatus', 'Mikrofoon fout: ' + err.message, 'bad');
+    setStatus('voiceStatus', 'Microphone error: ' + err.message, 'bad');
   }
 }
 
 async function extractFromVoice() {
   const uploadedFile = document.getElementById('audioInput').files[0];
   const audioBlob = uploadedFile || recordedBlob;
-  if (!audioBlob) { setStatus('voiceStatus', 'Neem eers op of laai \'n stemopname op.', 'bad'); return; }
+  if (!audioBlob) { setStatus('voiceStatus', 'Record or upload a voice note first.', 'bad'); return; }
 
   const btn = document.getElementById('btnExtractVoice');
   btn.disabled = true;
-  setStatus('voiceStatus', 'Transkribeer...');
+  setStatus('voiceStatus', 'Transcribing...');
 
   try {
     const audioBase64 = await blobToBase64(audioBlob);
     const language = document.getElementById('voiceLang').value;
-
-    // Step 1: transcribe → { transcript: '...' }
     const tRes = await fetch(BACKEND + '/transcribe-voice', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        token: brokerToken || 'RIYA-TEST-0001',
-        audioBase64: audioBase64,
-        mimeType: audioBlob.type || 'audio/webm',
-        language: language
-      })
+      body: JSON.stringify({ token: brokerToken || 'RIYA-TEST-0001', audioBase64: audioBase64, mimeType: audioBlob.type || 'audio/webm', language: language })
     });
     const tData = await tRes.json();
-    if (!tRes.ok || tData.error) throw new Error(tData.error || 'Transkripsie misluk');
+    if (!tRes.ok || tData.error) throw new Error(tData.error || 'Transcription failed');
     const transcript = tData.transcript || '';
-    if (!transcript) throw new Error('Leë transkripsie teruggegee');
+    if (!transcript) throw new Error('Empty transcript returned');
 
-    setStatus('voiceStatus', 'Velde onttrek uit transkripsie...');
-
-    // Step 2: extract fields from transcript
+    setStatus('voiceStatus', 'Extracting fields from transcript...');
     const f = await callExtract(transcript);
     populateForm(f);
-    setStatus('voiceStatus', '✓ Getranskribeer en onttrek — hersien alle velde voor generering.', 'ok');
+    setStatus('voiceStatus', '✓ Transcribed and extracted — review all fields before generating.', 'ok');
     recordedBlob = null;
     document.getElementById('audioInput').value = '';
   } catch(e) {
-    setStatus('voiceStatus', 'Fout: ' + e.message, 'bad');
+    setStatus('voiceStatus', 'Error: ' + e.message, 'bad');
   } finally {
     btn.disabled = false;
   }
 }
 
-// ── Generate Needs Analysis ───────────────────────────────────────────────────
 async function generateNA() {
-  if (!brokerToken) { alert('Meld eers aan met jou token.'); return; }
+  if (!brokerToken) { alert('Please login with your broker token first.'); return; }
 
   const btn = document.getElementById('btnGenerate');
   btn.disabled = true;
-  btn.textContent = 'Genereer...';
+  btn.textContent = 'Generating...';
 
-  document.getElementById('outputBody').innerHTML = '<div class="output-placeholder"><div class="spinner"></div><p>Riya stel jou Behoefteanalise op...</p></div>';
+  document.getElementById('outputBody').innerHTML = '<div class="output-placeholder"><div class="spinner"></div><p>Riya is preparing your Needs Analysis...</p></div>';
   document.getElementById('outputActions').style.display = 'none';
 
   const lang = document.getElementById('naLanguage').value;
   document.getElementById('adviceDate').value = document.getElementById('adviceDate').value || new Date().toISOString().slice(0,10);
 
-  let prompt = 'Genereer \'n volledige, FAIS-voldoende BEHOEFTEANALISE (Needs Analysis) dokument vir die volgende kliënt. Dit is NIE \'n Rekord van Advies nie — dit is \'n Behoefteanalise wat die kliënt se versekeringsbehoeftes identifiseer en dokumenteer per batekategorie.\n\n';
-  prompt += '--- FSP BESONDERHEDE ---\n';
-  prompt += 'Makelaar: ' + getVal('brokerName') + '\nFSP Nommer: ' + getVal('fspNumber') + '\nVerteenwoordiger: ' + getVal('advisorName') + '\nNakomingsbeampte: ' + getVal('complianceOfficer') + '\nAdvies Datum: ' + getVal('adviceDate') + '\nKommunikasiemetode: ' + getVal('commsMethod') + '\n\n';
-  prompt += '--- KLIËNTBESONDERHEDE ---\n';
-  prompt += 'Naam: ' + getVal('clientName') + '\nID/Reg: ' + getVal('clientId') + '\nKontaknommer: ' + getVal('clientContact') + '\nE-pos: ' + getVal('clientEmail') + '\nAdres: ' + getVal('clientAddress') + '\nBeroep: ' + getVal('clientOccupation') + '\n\n';
+  let prompt = 'Generate a complete, FAIS-compliant NEEDS ANALYSIS document for the following client. This is NOT a Record of Advice — it is a Needs Analysis that identifies and documents the client\'s insurance needs per asset category.\n\n';
+  prompt += '--- FSP DETAILS ---\n';
+  prompt += 'Broker: ' + getVal('brokerName') + '\nFSP Number: ' + getVal('fspNumber') + '\nRepresentative: ' + getVal('advisorName') + '\nCompliance Officer: ' + getVal('complianceOfficer') + '\nAdvice Date: ' + getVal('adviceDate') + '\nCommunication Method: ' + getVal('commsMethod') + '\n\n';
+  prompt += '--- CLIENT DETAILS ---\n';
+  prompt += 'Name: ' + getVal('clientName') + '\nID/Reg: ' + getVal('clientId') + '\nContact: ' + getVal('clientContact') + '\nEmail: ' + getVal('clientEmail') + '\nAddress: ' + getVal('clientAddress') + '\nOccupation: ' + getVal('clientOccupation') + '\n\n';
   prompt += '--- KYC / FICA / POPIA ---\n';
-  prompt += 'ID geverifieer: ' + (document.getElementById('kycId').checked ? 'Ja — gesertifiseerde kopie ter lêer' : 'Uitstaande') + '\n';
-  prompt += 'Adresbewys: ' + (document.getElementById('kycAddr').checked ? 'Ja — ter lêer' : 'Uitstaande') + '\n';
-  prompt += 'POPIA-toestemming: ' + (document.getElementById('popia').checked ? 'Ja — onderteken' : 'Uitstaande') + '\n';
-  prompt += 'FAIS-openbaarmaking: ' + (document.getElementById('faisDisc').checked ? 'Ja — verskaf en erken' : 'Uitstaande') + '\n';
-  prompt += 'Eisgeskiedenisnota: ' + getVal('claimsNotes') + '\n\n';
+  prompt += 'ID verified: ' + (document.getElementById('kycId').checked ? 'Yes — certified copy on file' : 'Outstanding') + '\n';
+  prompt += 'Proof of address: ' + (document.getElementById('kycAddr').checked ? 'Yes — on file' : 'Outstanding') + '\n';
+  prompt += 'POPIA consent: ' + (document.getElementById('popia').checked ? 'Yes — signed' : 'Outstanding') + '\n';
+  prompt += 'FAIS disclosure: ' + (document.getElementById('faisDisc').checked ? 'Yes — provided and acknowledged' : 'Outstanding') + '\n';
+  prompt += 'Claims history: ' + getVal('claimsNotes') + '\n\n';
 
   if (getVal('vehicle1')) {
-    prompt += '--- MOTORVOERTUIE ---\nVoertuig 1: ' + getVal('vehicle1') + ' | Gebruik: ' + getVal('vehicle1use') + ' | Waarde: R' + getVal('vehicle1value') + '\n';
-    if (getVal('vehicle2')) prompt += 'Voertuig 2: ' + getVal('vehicle2') + ' | Waarde: R' + getVal('vehicle2value') + '\n';
+    prompt += '--- MOTOR VEHICLES ---\nVehicle 1: ' + getVal('vehicle1') + ' | Use: ' + getVal('vehicle1use') + ' | Value: R' + getVal('vehicle1value') + '\n';
+    if (getVal('vehicle2')) prompt += 'Vehicle 2: ' + getVal('vehicle2') + ' | Value: R' + getVal('vehicle2value') + '\n';
     prompt += '\n';
   }
   if (getVal('buildType')) {
-    prompt += '--- GEBOUE ---\nEiendomstipe: ' + getVal('buildType') + '\nHerbouwaarde: R' + getVal('buildValue') + '\nSekuriteit: ' + getVal('buildSecurity') + '\n\n';
+    prompt += '--- BUILDINGS ---\nProperty type: ' + getVal('buildType') + '\nRebuild value: R' + getVal('buildValue') + '\nSecurity: ' + getVal('buildSecurity') + '\n\n';
   }
   if (getVal('contentsValue')) {
-    prompt += '--- INHOUD ---\nInhoudswaarde: R' + getVal('contentsValue') + '\n';
-    if (getVal('specifiedItems')) prompt += 'Gespesifiseerde items: ' + getVal('specifiedItems') + '\n';
+    prompt += '--- CONTENTS ---\nContents value: R' + getVal('contentsValue') + '\n';
+    if (getVal('specifiedItems')) prompt += 'Specified items: ' + getVal('specifiedItems') + '\n';
     prompt += '\n';
   }
   if (getVal('liabilityLimit')) {
-    prompt += '--- AANSPREEKLIKHEID ---\nPersoonlike aanspreeklikheidslimiet: R' + getVal('liabilityLimit') + '\n\n';
+    prompt += '--- LIABILITY ---\nPersonal liability limit: R' + getVal('liabilityLimit') + '\n\n';
   }
-  if (getVal('existingCover')) prompt += '--- BESTAANDE DEKKING ---\n' + getVal('existingCover') + '\n\n';
-  if (getVal('coverGaps')) prompt += '--- GEÏDENTIFISEERDE GAPINGS ---\n' + getVal('coverGaps') + '\n\n';
+  if (getVal('existingCover')) prompt += '--- EXISTING COVER ---\n' + getVal('existingCover') + '\n\n';
+  if (getVal('coverGaps')) prompt += '--- IDENTIFIED GAPS ---\n' + getVal('coverGaps') + '\n\n';
 
   const systemPrompt = lang === 'af'
-    ? 'Jy is \'n FAIS-nakomingsassistent. Stel \'n volledige, professionele Behoefteanalise op in Afrikaans. Die dokument moet dek: 1. FSP- en Verteenwoordigerbesonderhede 2. Kliëntidentifikasie, KYC, FICA en POPIA 3. Behoefteanalise per batekategorie (motor, geboue, inhoud, aanspreeklikheid) — elke kategorie kry \'n eie paragraaf wat die behoefte, die risiko, en die aanbevole dekkingstipe verduidelik 4. Bestaande Dekking en Gapings 5. Kliënt Aanvaardingsrekord met handtekeningblok. Skryf in vloeiende professionele Afrikaans. Gebruik slegs genommerde opskrifte — geen markdown nie. Elke batekategorie wat aangebied word, MOET bespreek word. Moenie fabriseer nie — gebruik slegs die inligting wat verskaf is.'
-    : 'You are a FAIS compliance assistant. Produce a complete, professional Needs Analysis document in English. The document must cover: 1. FSP and Representative Details 2. Client Identification, KYC, FICA and POPIA 3. Needs Analysis per asset category (motor, buildings, contents, liability) — each category gets its own paragraph explaining the need, the risk, and the recommended cover type 4. Existing Cover and Gaps 5. Client Acceptance Record with signature block. Write in fluent professional English. Use numbered headings only — no markdown. Every asset category presented MUST be discussed. Do not fabricate — use only the information provided.';
+    ? 'Jy is \'n FAIS-nakomingsassistent. Stel \'n volledige, professionele Behoefteanalise op in Afrikaans. Die dokument moet dek: 1. FSP- en Verteenwoordigerbesonderhede 2. Kliëntidentifikasie, KYC, FICA en POPIA 3. Behoefteanalise per batekategorie (motor, geboue, inhoud, aanspreeklikheid) 4. Bestaande Dekking en Gapings 5. Kliënt Aanvaardingsrekord met handtekeningblok. Gebruik slegs genommerde opskrifte — geen markdown nie. Moenie fabriseer nie.'
+    : 'You are a FAIS compliance assistant. Produce a complete, professional Needs Analysis document in English. The document must cover: 1. FSP and Representative Details 2. Client Identification, KYC, FICA and POPIA 3. Needs Analysis per asset category (motor, buildings, contents, liability) — each category gets its own paragraph explaining the need, the risk, and the recommended cover type 4. Existing Cover and Gaps 5. Client Acceptance Record with signature block. Use numbered headings only — no markdown. Do not fabricate — use only the information provided.';
 
   try {
     const res = await fetch(BACKEND + '/generate-roa', {
@@ -529,17 +506,17 @@ async function generateNA() {
     document.getElementById('outputActions').style.display = 'flex';
     checkCredits();
   } catch(e) {
-    document.getElementById('outputBody').innerHTML = '<p style="color:red;padding:16px;">Generering misluk: ' + e.message + '</p>';
+    document.getElementById('outputBody').innerHTML = '<p style="color:red;padding:16px;">Generation failed: ' + e.message + '</p>';
   }
 
   btn.disabled = false;
-  btn.textContent = 'Genereer Behoefteanalise';
+  btn.textContent = 'Generate Needs Analysis';
 }
 
 function renderOutput(text, warnings) {
   let html = '';
   if (warnings && warnings.length > 0) {
-    html += '<div class="review-banner"><strong>Lees deur voordat jy stuur — ' + warnings.length + ' item(s) gemerk:</strong><ul>';
+    html += '<div class="review-banner"><strong>Review before sending — ' + warnings.length + ' item(s) flagged:</strong><ul>';
     warnings.forEach(function(w) { html += '<li>' + w + '</li>'; });
     html += '</ul></div>';
   }
@@ -563,22 +540,15 @@ async function downloadPDF() {
     const res = await fetch(BACKEND + '/generate-pdf', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text: generatedText,
-        clientName: getVal('clientName'),
-        fspName: getVal('brokerName'),
-        triggerLabel: 'Behoefteanalise',
-        adviceDate: getVal('adviceDate'),
-        brokerToken: brokerToken
-      })
+      body: JSON.stringify({ text: generatedText, clientName: getVal('clientName'), fspName: getVal('brokerName'), triggerLabel: 'Needs Analysis', adviceDate: getVal('adviceDate'), brokerToken: brokerToken })
     });
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'Behoefteanalise-' + (getVal('clientName') || 'Klient').replace(/\s+/g, '') + '.pdf';
+    a.download = 'NeedsAnalysis-' + (getVal('clientName') || 'Client').replace(/\s+/g, '') + '.pdf';
     a.click();
-  } catch(e) { alert('PDF aflaai misluk: ' + e.message); }
+  } catch(e) { alert('PDF download failed: ' + e.message); }
 }
 
 async function emailBroker() {
@@ -587,13 +557,12 @@ async function emailBroker() {
     await fetch(BACKEND + '/send-roa-to-broker', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: brokerToken, roaText: generatedText, clientName: getVal('clientName'), triggerLabel: 'Behoefteanalise' })
+      body: JSON.stringify({ token: brokerToken, roaText: generatedText, clientName: getVal('clientName'), triggerLabel: 'Needs Analysis' })
     });
-    alert('E-pos gestuur aan makelaar!');
-  } catch(e) { alert('E-pos misluk: ' + e.message); }
+    alert('Emailed to broker successfully!');
+  } catch(e) { alert('Email failed: ' + e.message); }
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
 window.onload = function() {
   if (brokerToken) {
     document.getElementById('tokenInput').value = brokerToken;
