@@ -3,484 +3,293 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Riya COC — Confirmation of Insurance Generator</title>
+<title>Riya — Confirmation of Cover</title>
 <style>
   :root {
-    --navy: #1F4E5F;
-    --gold: #B8942F;
-    --lightgold: #F5EFDD;
-    --border: #E0E0E0;
-    --muted: #6B6B6B;
-    --bg: #FAFAF8;
-    --red: #B04A4A;
+    --navy: #1B2A4A;
+    --gold: #C9A84C;
+    --light: #F5F6FA;
+    --border: #DDE1EC;
+    --ink: #1a1a2e;
+    --muted: #6b7280;
+    --mono: 'Courier New', monospace;
+    --sans: 'Segoe UI', system-ui, sans-serif;
   }
-  * { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background: var(--bg);
-    margin: 0;
-    color: #1A1A1A;
-  }
-  header {
-    background: var(--navy);
-    color: white;
-    padding: 18px 28px;
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-  }
-  header .logo { font-weight: 800; font-size: 22px; letter-spacing: 0.5px; }
-  header .sub { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); }
-  .shell { max-width: 780px; margin: 0 auto; padding: 28px 20px 60px; }
-  .card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 22px 24px;
-    margin-bottom: 20px;
-  }
-  .card h2 {
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--navy);
-    margin: 0 0 14px 0;
-    border-bottom: 2px solid var(--gold);
-    padding-bottom: 8px;
-  }
-  label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 4px;
-    margin-top: 12px;
-  }
-  label:first-child { margin-top: 0; }
-  input[type=text], textarea {
-    width: 100%;
-    padding: 9px 10px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 14px;
-    font-family: inherit;
-  }
-  textarea { resize: vertical; min-height: 140px; }
-  .field-row { display: flex; gap: 12px; }
-  .field-row > div { flex: 1; }
-  .btn {
-    background: var(--navy);
-    color: white;
-    border: none;
-    padding: 11px 22px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 16px;
-  }
-  .btn:hover { opacity: 0.92; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-gold { background: var(--gold); }
-  .btn-outline {
-    background: white;
-    color: var(--navy);
-    border: 1px solid var(--navy);
-  }
-  .btn-small {
-    padding: 6px 12px;
-    font-size: 12px;
-    margin-top: 0;
-    border-radius: 4px;
-  }
-  .btn-danger {
-    background: white;
-    color: var(--red);
-    border: 1px solid var(--red);
-  }
-  .status { font-size: 12px; color: var(--muted); margin-top: 8px; min-height: 16px; }
-  .status.error { color: #B04A4A; }
-  .status.success { color: #2E7D32; }
-  .hidden { display: none; }
-  .token-box {
-    background: var(--lightgold);
-    border: 1px solid var(--gold);
-    border-radius: 4px;
-    padding: 10px 14px;
-    margin-bottom: 20px;
-    font-size: 12px;
-  }
-  .token-box input { margin-top: 6px; }
-  .note {
-    font-size: 12px;
-    color: var(--muted);
-    background: #F0F4F5;
-    border-radius: 4px;
-    padding: 10px 12px;
-    margin-top: 10px;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--light); color: var(--ink); min-height: 100vh; }
 
-  /* Vehicle list */
-  .vehicle-card {
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    margin-top: 12px;
-    overflow: hidden;
-  }
-  .vehicle-summary {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    background: #F7F6F2;
-    cursor: pointer;
-    user-select: none;
-  }
-  .vehicle-summary .idx {
-    background: var(--navy);
-    color: white;
-    font-size: 11px;
-    font-weight: 700;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .vehicle-summary .info {
-    flex: 1;
-    min-width: 0;
-  }
-  .vehicle-summary .info .main {
-    font-size: 13px;
-    font-weight: 700;
-    color: #1A1A1A;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .vehicle-summary .info .sub {
-    font-size: 11.5px;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .vehicle-summary .caret {
-    font-size: 11px;
-    color: var(--muted);
-    transition: transform 0.15s;
-    flex-shrink: 0;
-  }
-  .vehicle-summary.open .caret { transform: rotate(90deg); }
-  .vehicle-body {
-    padding: 16px 14px;
-    border-top: 1px solid var(--border);
-  }
-  .vehicle-body.hidden { display: none; }
-  .vehicle-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 14px;
-  }
-  .vehicles-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-top: 22px;
-  }
-  .vehicles-header h2 { margin: 0; border: none; padding: 0; }
-  .vehicle-count-pill {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 600;
-  }
-  .add-vehicle-row { margin-top: 14px; }
+  .header { background: var(--navy); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { color: white; font-size: 20px; font-weight: 700; }
+  .header span { color: var(--gold); font-size: 13px; }
 
-  /* Smart Input tabs (Paste Text / Upload File) */
-  .coc-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-  .coc-tab {
-    flex: 1; background: none; border: none; padding: 10px; cursor: pointer;
-    font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px;
-    color: var(--muted); border-bottom: 2px solid transparent;
-  }
-  .coc-tab.active { color: var(--navy); border-bottom-color: var(--gold); font-weight: 700; }
-  .coc-tab-content { display: none; }
-  .coc-tab-content.active { display: block; }
-  .coc-file-hint { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .token-bar { background: white; border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 12px; }
+  .token-bar input { border: 1px solid var(--border); border-radius: 4px; padding: 6px 12px; font-size: 13px; font-family: var(--mono); width: 220px; }
+  .token-bar button { background: var(--navy); color: white; border: none; border-radius: 4px; padding: 6px 16px; font-size: 13px; cursor: pointer; }
+  .credits-badge { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+  .main { display: flex; min-height: calc(100vh - 110px); }
+  .left-panel { width: 420px; min-width: 420px; background: white; border-right: 1px solid var(--border); padding: 24px; overflow-y: auto; }
+  .right-panel { flex: 1; padding: 24px; overflow-y: auto; }
+
+  .section-label { font-size: 10px; font-family: var(--mono); letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; margin-top: 20px; display: block; }
+  .section-label:first-child { margin-top: 0; }
+
+  .field-group { margin-bottom: 12px; }
+  .field-group label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .field-group input, .field-group select, .field-group textarea { width: 100%; border: 1px solid var(--border); border-radius: 4px; padding: 7px 10px; font-size: 13px; font-family: var(--sans); background: white; }
+  .field-group textarea { min-height: 60px; resize: vertical; }
+
+  .smart-input-area { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+  .smart-tabs { display: flex; background: var(--light); border-bottom: 1px solid var(--border); }
+  .smart-tab { padding: 8px 14px; font-size: 12px; font-family: var(--mono); cursor: pointer; border: none; background: none; color: var(--muted); border-bottom: 2px solid transparent; }
+  .smart-tab.active { color: var(--navy); border-bottom-color: var(--gold); font-weight: 600; }
+  .smart-tab-content { padding: 12px; display: none; }
+  .smart-tab-content.active { display: block; }
+  .smart-tab-content textarea { width: 100%; border: 1px solid var(--border); border-radius: 4px; padding: 8px; font-size: 12px; min-height: 100px; resize: vertical; font-family: var(--sans); }
+
+  .si-status { font-size: 11px; margin-top: 6px; color: var(--muted); min-height: 16px; }
+  .si-status.ok { color: #166534; }
+  .si-status.bad { color: #991b1b; }
+
+  .btn-extract { width: 100%; background: var(--light); border: 1px solid var(--border); border-radius: 4px; padding: 8px; font-size: 12px; font-family: var(--mono); cursor: pointer; color: var(--navy); margin-bottom: 8px; }
+  .btn-extract:hover { background: var(--border); }
+  .btn-extract:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .voice-row { display: flex; gap: 6px; margin-top: 8px; }
+  .voice-row button { flex: 1; padding: 7px 8px; font-size: 12px; font-family: var(--mono); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; background: white; color: var(--navy); }
+  .voice-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .voice-lang { font-size: 12px; border: 1px solid var(--border); border-radius: 4px; padding: 5px 6px; font-family: var(--mono); }
+
+  .vehicle-block { background: var(--light); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 10px; }
+  .vehicle-block h4 { font-size: 12px; font-family: var(--mono); color: var(--navy); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .vehicle-block .field-group { margin-bottom: 8px; }
+
+  .btn-add-vehicle { width: 100%; background: white; border: 1px dashed var(--border); border-radius: 4px; padding: 8px; font-size: 12px; cursor: pointer; color: var(--muted); margin-bottom: 12px; }
+  .btn-add-vehicle:hover { border-color: var(--navy); color: var(--navy); }
+
+  .btn-generate { width: 100%; background: var(--navy); color: white; border: none; border-radius: 4px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 16px; }
+  .btn-generate:hover { background: #253d6e; }
+  .btn-generate:disabled { background: var(--muted); cursor: not-allowed; }
+
+  .output-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 32px; min-height: 400px; }
+  .output-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: var(--muted); gap: 12px; }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .coc-output { font-family: var(--sans); font-size: 13px; line-height: 1.7; }
+  .coc-title { font-size: 16px; font-weight: 700; text-align: center; color: var(--navy); margin: 20px 0; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); padding: 10px 0; }
+
+  .output-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .btn-action { background: white; border: 1px solid var(--border); border-radius: 4px; padding: 7px 14px; font-size: 12px; cursor: pointer; color: var(--navy); }
+  .btn-action:hover { background: var(--light); }
+  .btn-action.primary { background: var(--navy); color: white; border-color: var(--navy); }
+
+  .lines-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+  .lines-tab { flex: 1; padding: 8px; font-size: 12px; font-family: var(--mono); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; background: white; color: var(--muted); text-align: center; }
+  .lines-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
 </style>
 </head>
 <body>
 
-<header>
-  <span class="logo">Riya</span>
-  <span class="sub">Confirmation of Insurance</span>
-</header>
+<div class="header">
+  <h1>Riya — Confirmation of Cover</h1>
+  <span>FAIS-Compliant Insurance Confirmation Letter</span>
+</div>
 
-<div class="shell">
+<div class="token-bar">
+  <input type="text" id="tokenInput" placeholder="Broker token (e.g. RIYA-GOMES-001)" />
+  <button onclick="setToken()">Login</button>
+  <span class="credits-badge" id="creditsBadge"></span>
+</div>
 
-  <div class="token-box" id="tokenBox">
-    <strong>Broker Token</strong>
-    <input type="text" id="brokerToken" placeholder="Enter your broker token">
-    <div class="status" id="tokenStatus" style="margin-top:6px;"></div>
-  </div>
+<div class="main">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
 
-  <div class="card">
-    <h2>1. Fleet / Vehicle Details</h2>
-
-    <div class="coc-tabs">
-      <button class="coc-tab active" data-tab="paste" onclick="switchCocTab('paste')">Paste Text</button>
-      <button class="coc-tab" data-tab="file" onclick="switchCocTab('file')">Upload File</button>
-      <button class="coc-tab" data-tab="voice" onclick="switchCocTab('voice')">Voice Note</button>
+    <span class="section-label">Lines of Business</span>
+    <div class="lines-tabs">
+      <div class="lines-tab active" id="tab-personal" onclick="setLines('personal')">Personal Lines</div>
+      <div class="lines-tab" id="tab-commercial" onclick="setLines('commercial')">Commercial Lines</div>
     </div>
 
-    <div class="coc-tab-content active" id="coc-tab-paste">
-      <label>Paste your notes, email, or fleet schedule below</label>
-      <textarea id="rawText" placeholder="e.g. Please confirm the following vehicle(s) added to the SANDY LOGISTICS fleet policy... Insurer: Drama Insurance Company, Policy MOB20252026, financed through WesBank..."></textarea>
-      <button class="btn" id="btnExtract" onclick="extractDetails()">Extract Details</button>
-      <div class="status" id="extractStatus"></div>
-    </div>
-
-    <div class="coc-tab-content" id="coc-tab-file">
-      <div class="coc-file-hint">PDF or image (PNG/JPEG/WebP) only. Choose one file, or select several at once, and Extract & Populate — details from each are added to the review below rather than replacing what's already there, so you can build up a fleet confirmation from more than one document.</div>
-      <input type="file" id="cocFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" multiple>
-      <button class="btn" id="btnExtractFile" onclick="extractFromFile()">Extract Details from File</button>
-      <div class="status" id="fileExtractStatus"></div>
-    </div>
-
-    <div class="coc-tab-content" id="coc-tab-voice">
-      <label for="cocVoiceLanguage">Language spoken in this note</label>
-      <select id="cocVoiceLanguage">
-        <option value="auto">Auto-detect</option>
-        <option value="en">English</option>
-        <option value="af">Afrikaans</option>
-      </select>
-      <div class="coc-file-hint" style="margin-top:10px;">Record a voice note now, or upload a previously saved one (e.g. from WhatsApp). As with Upload File, extracting from a second note adds to what's already captured rather than replacing it.</div>
-      <div class="field-row" style="margin-top:6px;">
-        <button class="btn btn-outline" id="cocRecordBtn" onclick="toggleCocRecording()">🎤 Start Recording</button>
-        <input type="file" id="cocAudioInput" accept="audio/*">
+    <span class="section-label">Smart Input</span>
+    <div class="smart-input-area">
+      <div class="smart-tabs">
+        <button class="smart-tab active" onclick="switchTab(event,'paste')">Paste Text</button>
+        <button class="smart-tab" onclick="switchTab(event,'file')">Upload File</button>
+        <button class="smart-tab" onclick="switchTab(event,'voice')">Voice Note</button>
       </div>
-      <button class="btn" id="btnExtractVoice" onclick="extractFromVoice()">Extract Details from Voice Note</button>
-      <div class="status" id="voiceExtractStatus"></div>
+
+      <!-- PASTE TEXT -->
+      <div class="smart-tab-content active" id="tab-paste">
+        <textarea id="pasteText" placeholder="Paste policy schedule, broker notes, or any client information here..."></textarea>
+        <button class="btn-extract" onclick="extractFromPaste()">⚡ Extract & Populate</button>
+        <div class="si-status" id="pasteStatus"></div>
+      </div>
+
+      <!-- UPLOAD FILE -->
+      <div class="smart-tab-content" id="tab-file">
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt" multiple style="font-size:12px;width:100%;" />
+        <p style="font-size:11px;color:var(--muted);margin-top:6px;">PDF, Word, or text. Multiple files supported.</p>
+        <button class="btn-extract" style="margin-top:8px;" id="btnExtractFile" onclick="extractFromFile()">⚡ Extract & Populate</button>
+        <div class="si-status" id="fileStatus"></div>
+      </div>
+
+      <!-- VOICE NOTE -->
+      <div class="smart-tab-content" id="tab-voice">
+        <div class="voice-row">
+          <button id="recordBtn" onclick="toggleRecording()">🎤 Start Recording</button>
+          <input type="file" id="audioInput" accept="audio/*" style="font-size:11px;flex:1;" />
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+          <label style="font-size:11px;color:var(--muted);">Language:</label>
+          <select class="voice-lang" id="voiceLang">
+            <option value="">Auto-detect</option>
+            <option value="en">English</option>
+            <option value="af">Afrikaans</option>
+          </select>
+        </div>
+        <button class="btn-extract" style="margin-top:8px;" id="btnExtractVoice" onclick="extractFromVoice()">⚡ Transcribe & Extract</button>
+        <div class="si-status" id="voiceStatus"></div>
+      </div>
     </div>
+
+    <span class="section-label">Broker / FSP Details</span>
+    <div class="field-group"><label>Broker / FSP Name</label><input type="text" id="brokerName" placeholder="e.g. 1st Insurance Brokers (Pty) Ltd" /></div>
+    <div class="field-group"><label>FSP Number</label><input type="text" id="fspNumber" /></div>
+    <div class="field-group"><label>Representative Name</label><input type="text" id="repName" /></div>
+    <div class="field-group"><label>Representative Title</label><input type="text" id="repTitle" placeholder="e.g. Authorised and Mandated Representative" /></div>
+    <div class="field-group"><label>Letter Date</label><input type="date" id="letterDate" /></div>
+
+    <span class="section-label">Recipient (Bank / Dealer / Financier)</span>
+    <div class="field-group"><label>Attention / Recipient Name</label><input type="text" id="recipientName" placeholder="e.g. Absa Vehicle Finance" /></div>
+    <div class="field-group"><label>Recipient Email</label><input type="text" id="recipientEmail" /></div>
+
+    <span class="section-label">Insured Details</span>
+    <div class="field-group"><label>Insured Name</label><input type="text" id="insuredName" /></div>
+    <div class="field-group"><label>Insured Address</label><input type="text" id="insuredAddress" /></div>
+
+    <span class="section-label">Policy Details</span>
+    <div class="field-group"><label>Insurer</label><input type="text" id="insurerName" placeholder="e.g. Santam, ONE Insurance, King Price" /></div>
+    <div class="field-group"><label>Policy Number</label><input type="text" id="policyNumber" /></div>
+    <div class="field-group"><label>Inception Date</label><input type="text" id="inceptionDate" placeholder="e.g. 01 June 2026" /></div>
+    <div class="field-group"><label>Renewal Date</label><input type="text" id="renewalDate" placeholder="e.g. 01 June 2027" /></div>
+    <div class="field-group"><label>Cover Type</label>
+      <select id="coverType">
+        <option>Comprehensive</option>
+        <option>Third Party, Fire and Theft</option>
+        <option>Third Party Only</option>
+        <option>All Risk</option>
+        <option>Buildings and Contents</option>
+      </select>
+    </div>
+    <div class="field-group"><label>Financier / Interest Noted</label><input type="text" id="financierName" placeholder="e.g. Absa Bank Ltd — first payee" /></div>
+
+    <span class="section-label">Vehicles / Assets</span>
+    <div id="vehicleContainer">
+      <div class="vehicle-block" id="vehicle-0">
+        <h4>Item 1</h4>
+        <div class="field-group"><label>Year Make Model</label><input type="text" class="v-desc" placeholder="2024 Nissan Qashqai 1.3T Acenta" /></div>
+        <div class="field-group"><label>Registration Number</label><input type="text" class="v-reg" /></div>
+        <div class="field-group"><label>VIN Number</label><input type="text" class="v-vin" /></div>
+        <div class="field-group"><label>Engine Number</label><input type="text" class="v-engine" /></div>
+        <div class="field-group"><label>Sum Insured (R)</label><input type="text" class="v-value" /></div>
+        <div class="field-group"><label>Financier for this item</label><input type="text" class="v-financier" placeholder="e.g. Absa Bank Ltd" /></div>
+      </div>
+    </div>
+    <button class="btn-add-vehicle" onclick="addVehicle()">+ Add Another Item</button>
+
+    <span class="section-label">SASRIA</span>
+    <div class="field-group">
+      <label><input type="checkbox" id="sasriaIncluded" style="margin-right:6px;" checked /> SASRIA cover included</label>
+    </div>
+
+    <span class="section-label">Additional Notes</span>
+    <div class="field-group"><label>Special Conditions / Notes</label><textarea id="specialNotes" placeholder="Any tracking device requirements, special conditions, etc."></textarea></div>
+
+    <button class="btn-generate" id="btnGenerate" onclick="generateCOC()">Generate Confirmation of Cover</button>
+
   </div>
 
-  <div class="card hidden" id="reviewCard">
-    <h2>2. Review &amp; Confirm</h2>
-
-    <label>Insured Company</label>
-    <input type="text" id="insuredCompany">
-
-    <div class="field-row">
-      <div><label>Attention (recipient name)</label><input type="text" id="attentionName" placeholder="Optional — dealership/bank contact"></div>
-      <div><label>Attention Email</label><input type="text" id="attentionEmail" placeholder="Optional"></div>
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="output-card" id="outputCard">
+      <div id="outputBody">
+        <div class="output-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p>Fill in the form and click <strong>Generate</strong></p>
+          <p style="font-size:12px;">Or paste a policy schedule and use Smart Extract</p>
+        </div>
+      </div>
+      <div id="outputActions" class="output-actions" style="display:none;">
+        <button class="btn-action primary" onclick="downloadPDF()">Download PDF</button>
+        <button class="btn-action" onclick="copyText()">Copy Text</button>
+        <button class="btn-action" onclick="emailBroker()">Email to Broker</button>
+      </div>
     </div>
-
-    <div class="field-row">
-      <div><label>Effective Date</label><input type="text" id="effectiveDate" placeholder="e.g. 20 July 2026"></div>
-      <div><label>Letter Date</label><input type="text" id="letterDate" placeholder="e.g. 20 July 2026"></div>
-    </div>
-
-    <div class="field-row">
-      <div><label>Insurer</label><input type="text" id="insurerName"></div>
-      <div><label>Policy Number</label><input type="text" id="policyNumber"></div>
-    </div>
-
-    <div class="field-row">
-      <div><label>Policy Inception Date</label><input type="text" id="policyInceptionDate" placeholder="e.g. 1 October 2025"></div>
-      <div><label>Policy Renewal Date</label><input type="text" id="policyRenewalDate" placeholder="e.g. 1 October 2026"></div>
-    </div>
-
-    <label>Financier (bank/finance company)</label>
-    <input type="text" id="financierName" placeholder="Leave blank if not financed">
-
-    <div class="vehicles-header">
-      <h2>Vehicles</h2>
-      <span class="vehicle-count-pill" id="vehicleCountPill">0 vehicles</span>
-    </div>
-
-    <div id="vehicleList"></div>
-
-    <div class="add-vehicle-row">
-      <button class="btn btn-outline btn-small" onclick="addVehicle()">+ Add Vehicle</button>
-    </div>
-
-    <div class="note" id="vehicleModeNote">One vehicle → single-vehicle letter layout. Two or more → multi-vehicle table layout. This is chosen automatically when you generate.</div>
-
-    <button class="btn btn-gold" id="btnGenerate" onclick="generatePDF()">Generate Confirmation of Insurance (PDF)</button>
-    <div class="status" id="generateStatus"></div>
   </div>
-
 </div>
 
 <script>
-const BACKEND = 'https://riya-coc-backend-production.up.railway.app';
+const BACKEND = 'https://riya-backend-production.up.railway.app';
+let brokerToken = localStorage.getItem('riya_coc_token') || '';
+let linesType = 'personal';
+let vehicleCount = 1;
+let generatedText = '';
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordedBlob = null;
 
-// Each vehicle is an object with all extractable fields. "expanded" is UI-only state.
-let vehicles = [];
-let vehicleSeq = 0;
-
-function emptyVehicle() {
-  vehicleSeq++;
-  return {
-    _uid: vehicleSeq,
-    _expanded: true,
-    yearMakeModel: '',
-    year: '',
-    mmCode: '',
-    sumInsured: '',
-    extras: '',
-    vinNumber: '',
-    engineNumber: '',
-    registrationNumber: '',
-    use: '',
-    trackingDevice: '',
-    creditShortfall: '',
-    registeredOwner: '',
-    riskAddress: ''
-  };
+// ── Token & credits ──────────────────────────────────────────────────────────
+function setToken() {
+  brokerToken = document.getElementById('tokenInput').value.trim();
+  if (!brokerToken) return;
+  localStorage.setItem('riya_coc_token', brokerToken);
+  checkCredits();
 }
 
-// ── Shared login (cookie scoped to .riya.co.za, so entering the token once
-// on any Riya subdomain — portal, roa, needs, coc — carries across the others).
-// Falls back to this site's own localStorage key if the shared cookie isn't
-// set yet, so nothing breaks for anyone still on the old behaviour.
-function setSharedToken(value) {
-  const trimmed = (value || '').trim();
-  document.cookie = 'riya_shared_token=' + encodeURIComponent(trimmed) +
-    '; domain=.riya.co.za; path=/; max-age=31536000; SameSite=Lax';
-  localStorage.setItem('riya_coc_broker_token', trimmed);
-}
-function getSharedToken() {
-  const match = document.cookie.match(/(?:^|;\s*)riya_shared_token=([^;]*)/);
-  if (match) return decodeURIComponent(match[1]);
-  return localStorage.getItem('riya_coc_broker_token') || '';
-}
-
-function getToken() {
-  return document.getElementById('brokerToken').value.trim();
-}
-
-async function validateCocToken() {
-  const token = getToken();
-  const statusEl = document.getElementById('tokenStatus');
-  if (!token) { statusEl.textContent = ''; return; }
-  statusEl.textContent = 'Checking...';
-  statusEl.className = 'status';
+async function checkCredits() {
   try {
-    const res = await fetch(BACKEND + '/validate-token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: token })
-    });
-    const json = await res.json();
-    if (json.valid) {
-      const creditsLeft = (json.broker && json.broker.credits !== undefined) ? json.broker.credits : null;
-      statusEl.textContent = '✓ ' + (json.broker.name || 'Broker') + ' verified' + (creditsLeft !== null ? ' — ' + creditsLeft + ' credits left' : '');
-      statusEl.className = 'status success';
-    } else {
-      statusEl.textContent = 'Invalid or inactive token';
-      statusEl.className = 'status error';
+    const res = await fetch(BACKEND + '/credits?token=' + brokerToken);
+    const data = await res.json();
+    if (data.credits !== undefined) {
+      document.getElementById('creditsBadge').textContent = 'Credits: ' + data.credits;
     }
-  } catch(e) {
-    statusEl.textContent = 'Could not reach server';
-    statusEl.className = 'status error';
-  }
+  } catch(e) {}
 }
 
-window.addEventListener('DOMContentLoaded', function() {
-  const saved = getSharedToken();
-  if (saved) document.getElementById('brokerToken').value = saved;
-  validateCocToken();
-  document.getElementById('brokerToken').addEventListener('change', function() {
-    setSharedToken(this.value);
-    validateCocToken();
-  });
-});
-
-function switchCocTab(tab) {
-  document.querySelectorAll('.coc-tab').forEach(function(el) {
-    el.classList.toggle('active', el.dataset.tab === tab);
-  });
-  document.querySelectorAll('.coc-tab-content').forEach(function(el) {
-    el.classList.remove('active');
-  });
-  document.getElementById('coc-tab-' + tab).classList.add('active');
+// ── UI helpers ───────────────────────────────────────────────────────────────
+function setLines(type) {
+  linesType = type;
+  document.getElementById('tab-personal').classList.toggle('active', type === 'personal');
+  document.getElementById('tab-commercial').classList.toggle('active', type === 'commercial');
 }
 
-// ── SHARED: applies one extraction result onto the current form state.
-// Scalar fields only fill if currently blank, so extracting from a second
-// document does not wipe out what the first document already supplied.
-// Vehicles are appended (not replaced), except when the only vehicle
-// present so far is still the untouched default row.
-function applyCocExtractedData(d) {
-  const scalarIds = ['insuredCompany', 'attentionName', 'attentionEmail', 'effectiveDate',
-    'insurerName', 'policyNumber', 'policyInceptionDate', 'policyRenewalDate', 'financierName'];
-  scalarIds.forEach(function(id) {
-    const el = document.getElementById(id);
-    if (el && !el.value && d[id]) el.value = d[id];
-  });
-
-  const extractedVehicles = (d.vehicles && d.vehicles.length) ? d.vehicles : [];
-  if (extractedVehicles.length) {
-    const onlyBlankDefault = vehicles.length === 1 &&
-      !vehicles[0].yearMakeModel && !vehicles[0].registrationNumber && !vehicles[0].vinNumber;
-    const newOnes = extractedVehicles.map(function(v) {
-      const nv = emptyVehicle();
-      nv._expanded = false;
-      Object.keys(nv).forEach(function(k) {
-        if (k.charAt(0) !== '_' && v[k] !== undefined) nv[k] = v[k];
-      });
-      return nv;
-    });
-    vehicles = onlyBlankDefault ? newOnes : vehicles.concat(newOnes);
-    if (vehicles.length === 1) vehicles[0]._expanded = true;
-  }
-
-  renderVehicles();
-  document.getElementById('reviewCard').classList.remove('hidden');
-  return extractedVehicles.length;
+function switchTab(e, tab) {
+  document.querySelectorAll('.smart-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.smart-tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  e.target.classList.add('active');
 }
 
-async function extractDetails() {
-  const token = getToken();
-  const text = document.getElementById('rawText').value.trim();
-  const statusEl = document.getElementById('extractStatus');
-  const btn = document.getElementById('btnExtract');
-
-  if (!token) { statusEl.textContent = 'Please enter your broker token first.'; statusEl.className = 'status error'; return; }
-  if (!text) { statusEl.textContent = 'Please paste some details first.'; statusEl.className = 'status error'; return; }
-
-  btn.disabled = true;
-  statusEl.textContent = 'Extracting details...';
-  statusEl.className = 'status';
-
-  try {
-    const res = await fetch(BACKEND + '/extract-coc', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: token, text: text })
-    });
-    const json = await res.json();
-    if (!res.ok || json.error) throw new Error(json.error || 'Extraction failed');
-
-    const vehicleCount = applyCocExtractedData(json.data);
-    statusEl.textContent = 'Extracted ' + vehicleCount + ' vehicle' + (vehicleCount === 1 ? '' : 's') + ' — review below before generating.';
-    statusEl.className = 'status success';
-  } catch(e) {
-    statusEl.textContent = 'Error: ' + e.message;
-    statusEl.className = 'status error';
-  } finally {
-    btn.disabled = false;
-  }
+function getVal(id) {
+  const el = document.getElementById(id);
+  if (!el) return '';
+  if (el.type === 'checkbox') return el.checked;
+  return el.value || '';
 }
 
-// ── NEW: Upload File extraction. Loops through however many files were
-// selected in the picker, extracting each in turn and merging results via
-// applyCocExtractedData (same merge logic used by Paste Text above).
-function blobToBase64Coc(blob) {
+function setStatus(id, msg, cls) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'si-status' + (cls ? ' ' + cls : '');
+}
+
+// ── Base64 helper ────────────────────────────────────────────────────────────
+function blobToBase64(blob) {
   return new Promise(function(resolve, reject) {
     const reader = new FileReader();
     reader.onloadend = function() { resolve(reader.result.split(',')[1]); };
@@ -489,357 +298,372 @@ function blobToBase64Coc(blob) {
   });
 }
 
-// ── NEW: Voice Note recording + extraction ──
-let cocMediaRecorder = null;
-let cocRecordedChunks = [];
-let cocRecordedBlob = null;
+// ── Populate form from extracted JSON ────────────────────────────────────────
+function populateForm(f) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  set('brokerName', f.brokerName);
+  set('fspNumber', f.fspNumber);
+  set('repName', f.repName);
+  set('insurerName', f.insurerName);
+  set('policyNumber', f.policyNumber);
+  set('inceptionDate', f.inceptionDate);
+  set('renewalDate', f.renewalDate);
+  set('insuredName', f.insuredName);
+  set('insuredAddress', f.insuredAddress);
+  set('financierName', f.financierName);
+  set('recipientName', f.recipientName);
+  set('recipientEmail', f.recipientEmail);
+  set('coverType', f.coverType);
+  set('specialNotes', f.specialNotes);
+  if (f.sasriaIncluded !== undefined) document.getElementById('sasriaIncluded').checked = f.sasriaIncluded;
+  if (f.linesType) setLines(f.linesType);
 
-async function toggleCocRecording() {
-  const btn = document.getElementById('cocRecordBtn');
-  const statusEl = document.getElementById('voiceExtractStatus');
-  if (cocMediaRecorder && cocMediaRecorder.state === 'recording') {
-    cocMediaRecorder.stop();
-    btn.textContent = '🎤 Start Recording';
-    return;
-  }
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    cocRecordedChunks = [];
-    cocMediaRecorder = new MediaRecorder(stream);
-    cocMediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) cocRecordedChunks.push(e.data); };
-    cocMediaRecorder.onstop = function() {
-      stream.getTracks().forEach(function(t) { t.stop(); });
-      cocRecordedBlob = new Blob(cocRecordedChunks, { type: 'audio/webm' });
-      statusEl.textContent = 'Recording captured — click "Extract Details from Voice Note" when ready.';
-      statusEl.className = 'status success';
-    };
-    cocMediaRecorder.start();
-    btn.textContent = '⏹ Stop Recording';
-    statusEl.textContent = 'Recording...';
-    statusEl.className = 'status';
-  } catch(err) {
-    statusEl.textContent = 'Could not access microphone: ' + err.message;
-    statusEl.className = 'status error';
-  }
-}
-
-async function extractFromVoice() {
-  const token = getToken();
-  const statusEl = document.getElementById('voiceExtractStatus');
-  const btn = document.getElementById('btnExtractVoice');
-  const language = document.getElementById('cocVoiceLanguage').value;
-  const uploadedFile = document.getElementById('cocAudioInput').files[0];
-  const audioBlob = uploadedFile || cocRecordedBlob;
-
-  if (!token) { statusEl.textContent = 'Please enter your broker token first.'; statusEl.className = 'status error'; return; }
-  if (!audioBlob) { statusEl.textContent = 'Record or upload a voice note first.'; statusEl.className = 'status error'; return; }
-
-  btn.disabled = true;
-  statusEl.textContent = 'Transcribing and extracting...';
-  statusEl.className = 'status';
-
-  try {
-    const audioBase64 = await blobToBase64Coc(audioBlob);
-    const res = await fetch(BACKEND + '/extract-coc-voice', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: token, audioBase64: audioBase64, mimeType: audioBlob.type || 'audio/webm', language: language })
+  if (f.vehicles && f.vehicles.length > 0) {
+    const container = document.getElementById('vehicleContainer');
+    container.innerHTML = '';
+    vehicleCount = 0;
+    f.vehicles.forEach(function(v, i) {
+      vehicleCount++;
+      const block = document.createElement('div');
+      block.className = 'vehicle-block';
+      block.id = 'vehicle-' + i;
+      const removeBtn = i > 0 ? '<span style="float:right;cursor:pointer;color:var(--muted);font-size:11px;" onclick="this.closest(\'.vehicle-block\').remove()">Remove</span>' : '';
+      block.innerHTML =
+        '<h4>Item ' + (i + 1) + removeBtn + '</h4>' +
+        '<div class="field-group"><label>Year Make Model</label><input type="text" class="v-desc" value="' + esc(v.description || '') + '" /></div>' +
+        '<div class="field-group"><label>Registration Number</label><input type="text" class="v-reg" value="' + esc(v.registration || '') + '" /></div>' +
+        '<div class="field-group"><label>VIN Number</label><input type="text" class="v-vin" value="' + esc(v.vin || '') + '" /></div>' +
+        '<div class="field-group"><label>Engine Number</label><input type="text" class="v-engine" value="' + esc(v.engine || '') + '" /></div>' +
+        '<div class="field-group"><label>Sum Insured (R)</label><input type="text" class="v-value" value="' + esc(v.sumInsured || '') + '" /></div>' +
+        '<div class="field-group"><label>Financier</label><input type="text" class="v-financier" value="' + esc(v.financier || '') + '" /></div>';
+      container.appendChild(block);
     });
-    const json = await res.json();
-    if (!res.ok || json.error) throw new Error(json.error || 'Extraction failed');
-    const vehicleCount = applyCocExtractedData(json.data);
-    statusEl.textContent = 'Extracted ' + vehicleCount + ' vehicle' + (vehicleCount === 1 ? '' : 's') + ' from voice note — review below before generating.';
-    statusEl.className = 'status success';
-    cocRecordedBlob = null;
-    document.getElementById('cocAudioInput').value = '';
-  } catch(e) {
-    statusEl.textContent = 'Error: ' + e.message;
-    statusEl.className = 'status error';
-  } finally {
-    btn.disabled = false;
   }
 }
 
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Build extract prompt (shared by paste + voice text) ──────────────────────
+function buildExtractPrompt(text) {
+  return 'Extract the following fields from this insurance document. Return ONLY a valid JSON object with these exact keys:\n' +
+    'brokerName, fspNumber, repName, insurerName, policyNumber, inceptionDate, renewalDate,\n' +
+    'insuredName, insuredAddress, financierName, recipientName, recipientEmail,\n' +
+    'vehicles (array of: description, registration, vin, engine, sumInsured, financier),\n' +
+    'sasriaIncluded (boolean), specialNotes, coverType, linesType ("personal" or "commercial").\n' +
+    'Return ONLY the JSON, no preamble, no markdown.\n\nDocument:\n' + text;
+}
+
+async function callExtract(prompt, statusId) {
+  const res = await fetch(BACKEND + '/generate-roa', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: brokerToken || 'RIYA-TEST-0001', user: prompt, mode: 'extract' })
+  });
+  const data = await res.json();
+  const raw = data.content?.map(b => b.text || '').join('') || '';
+  const start = raw.indexOf('{');
+  const end = raw.lastIndexOf('}');
+  if (start === -1 || end === -1) throw new Error('No JSON returned from extraction');
+  return JSON.parse(raw.slice(start, end + 1));
+}
+
+// ── PASTE TEXT extraction ─────────────────────────────────────────────────────
+async function extractFromPaste() {
+  const text = document.getElementById('pasteText').value.trim();
+  if (!text) { setStatus('pasteStatus', 'Paste some text first.', 'bad'); return; }
+  setStatus('pasteStatus', 'Extracting...');
+  try {
+    const f = await callExtract(buildExtractPrompt(text), 'pasteStatus');
+    populateForm(f);
+    setStatus('pasteStatus', '✓ Extracted — review all fields before generating.', 'ok');
+  } catch(e) {
+    setStatus('pasteStatus', 'Extraction failed: ' + e.message, 'bad');
+  }
+}
+
+// ── UPLOAD FILE extraction ────────────────────────────────────────────────────
+// Uses /extract-pdf (base64 → RoA backend extracts text → returns it)
+// then feeds that text through the same extract prompt.
 async function extractFromFile() {
-  const token = getToken();
-  const fileInput = document.getElementById('cocFileInput');
+  const fileInput = document.getElementById('fileInput');
   const files = Array.from(fileInput.files);
-  const statusEl = document.getElementById('fileExtractStatus');
+  if (!files.length) { setStatus('fileStatus', 'Choose a file first.', 'bad'); return; }
+
   const btn = document.getElementById('btnExtractFile');
-
-  if (!token) { statusEl.textContent = 'Please enter your broker token first.'; statusEl.className = 'status error'; return; }
-  if (!files.length) { statusEl.textContent = 'Please choose a file first.'; statusEl.className = 'status error'; return; }
-
   btn.disabled = true;
-  let totalVehicles = 0;
+  let combinedText = '';
 
   try {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      statusEl.textContent = 'Extracting file ' + (i + 1) + ' of ' + files.length + ': ' + file.name + '...';
-      statusEl.className = 'status';
-      const fileBase64 = await blobToBase64Coc(file);
-      const res = await fetch(BACKEND + '/extract-coc-file', {
+      setStatus('fileStatus', 'Extracting file ' + (i + 1) + ' of ' + files.length + ': ' + file.name + '…');
+      const fileBase64 = await blobToBase64(file);
+      const res = await fetch(BACKEND + '/extract-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: token, fileBase64: fileBase64, mimeType: file.type })
+        body: JSON.stringify({ token: brokerToken || 'RIYA-TEST-0001', fileBase64: fileBase64, mimeType: file.type })
       });
-      const json = await res.json();
-      if (!res.ok || json.error) throw new Error(json.error || 'Extraction failed on ' + file.name);
-      totalVehicles += applyCocExtractedData(json.data);
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || 'File extraction failed: ' + file.name);
+      // /extract-pdf returns { text: '...' }
+      combinedText += (data.text || '') + '\n\n';
     }
-    statusEl.textContent = 'Extracted from ' + files.length + ' file' + (files.length === 1 ? '' : 's') +
-      ' (' + totalVehicles + ' vehicle' + (totalVehicles === 1 ? '' : 's') + ') — review below before generating.';
-    statusEl.className = 'status success';
+
+    setStatus('fileStatus', 'Running field extraction…');
+    const f = await callExtract(buildExtractPrompt(combinedText.trim()), 'fileStatus');
+    populateForm(f);
+    setStatus('fileStatus', '✓ Extracted from ' + files.length + ' file' + (files.length > 1 ? 's' : '') + ' — review before generating.', 'ok');
     fileInput.value = '';
   } catch(e) {
-    statusEl.textContent = 'Error: ' + e.message;
-    statusEl.className = 'status error';
+    setStatus('fileStatus', 'Error: ' + e.message, 'bad');
   } finally {
     btn.disabled = false;
   }
 }
 
-function setVal(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.value = val || '';
-}
+// ── VOICE NOTE extraction ─────────────────────────────────────────────────────
+async function toggleRecording() {
+  const btn = document.getElementById('recordBtn');
+  const statusEl = document.getElementById('voiceStatus');
 
-function addVehicle() {
-  vehicles.forEach(function(v) { v._expanded = false; });
-  const nv = emptyVehicle();
-  nv._expanded = true;
-  vehicles.push(nv);
-  renderVehicles();
-  const el = document.getElementById('vcard_' + nv._uid);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-function deleteVehicle(uid) {
-  if (vehicles.length <= 1) {
-    alert('At least one vehicle is required.');
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+    btn.textContent = '🎤 Start Recording';
     return;
   }
-  if (!confirm('Remove this vehicle from the letter?')) return;
-  vehicles = vehicles.filter(function(v) { return v._uid !== uid; });
-  renderVehicles();
-}
-
-function toggleVehicle(uid) {
-  const v = vehicles.find(function(v) { return v._uid === uid; });
-  if (v) v._expanded = !v._expanded;
-  renderVehicles();
-}
-
-function updateVehicleField(uid, field, value) {
-  const v = vehicles.find(function(v) { return v._uid === uid; });
-  if (v) v[field] = value;
-  // Update summary line live without a full re-render (keeps focus in the input)
-  const summaryMain = document.querySelector('#vcard_' + uid + ' .info .main');
-  const summarySub = document.querySelector('#vcard_' + uid + ' .info .sub');
-  if (summaryMain) summaryMain.textContent = vehicleSummaryMain(v);
-  if (summarySub) summarySub.textContent = vehicleSummarySub(v);
-}
-
-function vehicleSummaryMain(v) {
-  return (v.yearMakeModel || v.registeredOwner || 'New vehicle') + (v.year && !/\d{4}/.test(v.yearMakeModel || '') ? ' (' + v.year + ')' : '');
-}
-function vehicleSummarySub(v) {
-  const bits = [];
-  if (v.registrationNumber) bits.push('Reg: ' + v.registrationNumber);
-  if (v.vinNumber) bits.push('VIN: ' + v.vinNumber);
-  if (v.sumInsured) bits.push(v.sumInsured);
-  return bits.length ? bits.join('  ·  ') : 'Click to edit details';
-}
-
-function renderVehicles() {
-  document.getElementById('vehicleCountPill').textContent =
-    vehicles.length + ' vehicle' + (vehicles.length === 1 ? '' : 's');
-
-  const modeNote = document.getElementById('vehicleModeNote');
-  modeNote.textContent = vehicles.length <= 1
-    ? 'One vehicle → single-vehicle letter layout will be used.'
-    : vehicles.length + ' vehicles → multi-vehicle table layout will be used.';
-
-  const listEl = document.getElementById('vehicleList');
-  listEl.innerHTML = '';
-
-  vehicles.forEach(function(v, i) {
-    const card = document.createElement('div');
-    card.className = 'vehicle-card';
-    card.id = 'vcard_' + v._uid;
-
-    const summary = document.createElement('div');
-    summary.className = 'vehicle-summary' + (v._expanded ? ' open' : '');
-    summary.onclick = function() { toggleVehicle(v._uid); };
-    summary.innerHTML =
-      '<span class="idx">' + (i + 1) + '</span>' +
-      '<div class="info">' +
-        '<div class="main">' + escapeHtml(vehicleSummaryMain(v)) + '</div>' +
-        '<div class="sub">' + escapeHtml(vehicleSummarySub(v)) + '</div>' +
-      '</div>' +
-      '<span class="caret">&#9656;</span>';
-    card.appendChild(summary);
-
-    const body = document.createElement('div');
-    body.className = 'vehicle-body' + (v._expanded ? '' : ' hidden');
-
-    body.appendChild(fieldRow([
-      field('Year, Make & Model', v._uid, 'yearMakeModel', v.yearMakeModel, false),
-      field('Year', v._uid, 'year', v.year, false, '4-digit, e.g. 2026')
-    ]));
-    body.appendChild(fieldRow([
-      field('M&M Code', v._uid, 'mmCode', v.mmCode, false),
-      field('Sum Insured', v._uid, 'sumInsured', v.sumInsured, false)
-    ]));
-    body.appendChild(fieldSingle('Extras', v._uid, 'extras', v.extras, 'e.g. TOW BAR: R8,000.00'));
-    body.appendChild(fieldRow([
-      field('VIN Number', v._uid, 'vinNumber', v.vinNumber, false),
-      field('Engine Number', v._uid, 'engineNumber', v.engineNumber, false)
-    ]));
-    body.appendChild(fieldRow([
-      field('Registration Number', v._uid, 'registrationNumber', v.registrationNumber, false, 'or T.B.A'),
-      field('Use', v._uid, 'use', v.use, false, 'e.g. BUSINESS & PRIVATE')
-    ]));
-    body.appendChild(fieldRow([
-      field('Tracking Device', v._uid, 'trackingDevice', v.trackingDevice, false),
-      field('Credit Shortfall', v._uid, 'creditShortfall', v.creditShortfall, false, 'INCLUDED or NOT INCLUDED')
-    ]));
-    body.appendChild(fieldSingle('Registered Owner', v._uid, 'registeredOwner', v.registeredOwner));
-    body.appendChild(fieldSingle('Risk Address', v._uid, 'riskAddress', v.riskAddress));
-
-    const actions = document.createElement('div');
-    actions.className = 'vehicle-actions';
-    const delBtn = document.createElement('button');
-    delBtn.className = 'btn btn-danger btn-small';
-    delBtn.textContent = 'Delete Vehicle';
-    delBtn.onclick = function() { deleteVehicle(v._uid); };
-    actions.appendChild(delBtn);
-    body.appendChild(actions);
-
-    card.appendChild(body);
-    listEl.appendChild(card);
-  });
-}
-
-function field(labelText, uid, key, value, half, placeholder) {
-  const wrap = document.createElement('div');
-  const lab = document.createElement('label');
-  lab.textContent = labelText;
-  lab.style.marginTop = '0';
-  const inp = document.createElement('input');
-  inp.type = 'text';
-  inp.value = value || '';
-  if (placeholder) inp.placeholder = placeholder;
-  inp.oninput = function() { updateVehicleField(uid, key, this.value); };
-  wrap.appendChild(lab);
-  wrap.appendChild(inp);
-  return wrap;
-}
-
-function fieldRow(children) {
-  const row = document.createElement('div');
-  row.className = 'field-row';
-  row.style.marginTop = '10px';
-  children.forEach(function(c) { row.appendChild(c); });
-  return row;
-}
-
-function fieldSingle(labelText, uid, key, value, placeholder) {
-  const wrap = document.createElement('div');
-  wrap.style.marginTop = '10px';
-  const lab = document.createElement('label');
-  lab.textContent = labelText;
-  lab.style.marginTop = '0';
-  const inp = document.createElement('input');
-  inp.type = 'text';
-  inp.value = value || '';
-  if (placeholder) inp.placeholder = placeholder;
-  inp.oninput = function() { updateVehicleField(uid, key, this.value); };
-  wrap.appendChild(lab);
-  wrap.appendChild(inp);
-  return wrap;
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str == null ? '' : String(str);
-  return div.innerHTML;
-}
-
-async function generatePDF() {
-  const token = getToken();
-  const statusEl = document.getElementById('generateStatus');
-  const btn = document.getElementById('btnGenerate');
-
-  if (!token) { statusEl.textContent = 'Please enter your broker token first.'; statusEl.className = 'status error'; return; }
-  if (!vehicles.length) { statusEl.textContent = 'Add at least one vehicle first.'; statusEl.className = 'status error'; return; }
-
-  const cleanVehicles = vehicles.map(function(v) {
-    return {
-      yearMakeModel: v.yearMakeModel,
-      year: v.year,
-      mmCode: v.mmCode,
-      sumInsured: v.sumInsured,
-      extras: v.extras,
-      vinNumber: v.vinNumber,
-      engineNumber: v.engineNumber,
-      registrationNumber: v.registrationNumber,
-      use: v.use,
-      trackingDevice: v.trackingDevice,
-      creditShortfall: v.creditShortfall,
-      registeredOwner: v.registeredOwner,
-      riskAddress: v.riskAddress
-    };
-  });
-
-  const data = {
-    insuredCompany: document.getElementById('insuredCompany').value,
-    attentionName: document.getElementById('attentionName').value,
-    attentionEmail: document.getElementById('attentionEmail').value,
-    effectiveDate: document.getElementById('effectiveDate').value,
-    letterDate: document.getElementById('letterDate').value,
-    insurerName: document.getElementById('insurerName').value,
-    policyNumber: document.getElementById('policyNumber').value,
-    policyInceptionDate: document.getElementById('policyInceptionDate').value,
-    policyRenewalDate: document.getElementById('policyRenewalDate').value,
-    financierName: document.getElementById('financierName').value,
-    vehicles: cleanVehicles
-  };
-
-  btn.disabled = true;
-  statusEl.textContent = 'Generating PDF...';
-  statusEl.className = 'status';
 
   try {
-    const res = await fetch(BACKEND + '/generate-coc-pdf', {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = function() {
+      stream.getTracks().forEach(function(t) { t.stop(); });
+      recordedBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+      setStatus('voiceStatus', 'Recording captured — click Transcribe & Extract when ready.', 'ok');
+    };
+    mediaRecorder.start();
+    btn.textContent = '⏹ Stop Recording';
+    setStatus('voiceStatus', 'Recording…');
+  } catch(err) {
+    setStatus('voiceStatus', 'Microphone error: ' + err.message, 'bad');
+  }
+}
+
+async function extractFromVoice() {
+  const uploadedFile = document.getElementById('audioInput').files[0];
+  const audioBlob = uploadedFile || recordedBlob;
+  if (!audioBlob) { setStatus('voiceStatus', 'Record or upload a voice note first.', 'bad'); return; }
+
+  const btn = document.getElementById('btnExtractVoice');
+  btn.disabled = true;
+  setStatus('voiceStatus', 'Transcribing…');
+
+  try {
+    const audioBase64 = await blobToBase64(audioBlob);
+    const language = document.getElementById('voiceLang').value;
+
+    // Step 1: transcribe via /transcribe-voice → returns { transcript: '...' }
+    const tRes = await fetch(BACKEND + '/transcribe-voice', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: token, data: data })
+      body: JSON.stringify({
+        token: brokerToken || 'RIYA-TEST-0001',
+        audioBase64: audioBase64,
+        mimeType: audioBlob.type || 'audio/webm',
+        language: language
+      })
     });
-    if (!res.ok) {
-      const json = await res.json().catch(function() { return {}; });
-      throw new Error(json.error || 'Generation failed');
-    }
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Confirmation_of_Insurance_' + (data.insuredCompany || 'letter').replace(/[^a-z0-9]/gi, '_') + '.pdf';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
-    statusEl.textContent = 'PDF downloaded successfully.';
-    statusEl.className = 'status success';
+    const tData = await tRes.json();
+    if (!tRes.ok || tData.error) throw new Error(tData.error || 'Transcription failed');
+    const transcript = tData.transcript || '';
+    if (!transcript) throw new Error('Empty transcript returned');
+
+    setStatus('voiceStatus', 'Extracting fields from transcript…');
+
+    // Step 2: run the same extract prompt on the transcript
+    const f = await callExtract(buildExtractPrompt(transcript), 'voiceStatus');
+    populateForm(f);
+    setStatus('voiceStatus', '✓ Transcribed and extracted — review all fields before generating.', 'ok');
+    recordedBlob = null;
+    document.getElementById('audioInput').value = '';
   } catch(e) {
-    statusEl.textContent = 'Error: ' + e.message;
-    statusEl.className = 'status error';
+    setStatus('voiceStatus', 'Error: ' + e.message, 'bad');
   } finally {
     btn.disabled = false;
   }
 }
-</script>
 
+// ── Vehicle helpers ───────────────────────────────────────────────────────────
+function addVehicle() {
+  vehicleCount++;
+  const container = document.getElementById('vehicleContainer');
+  const block = document.createElement('div');
+  block.className = 'vehicle-block';
+  block.id = 'vehicle-' + (vehicleCount - 1);
+  block.innerHTML =
+    '<h4>Item ' + vehicleCount + ' <span style="float:right;cursor:pointer;color:var(--muted);font-size:11px;" onclick="this.closest(\'.vehicle-block\').remove()">Remove</span></h4>' +
+    '<div class="field-group"><label>Year Make Model</label><input type="text" class="v-desc" /></div>' +
+    '<div class="field-group"><label>Registration Number</label><input type="text" class="v-reg" /></div>' +
+    '<div class="field-group"><label>VIN Number</label><input type="text" class="v-vin" /></div>' +
+    '<div class="field-group"><label>Engine Number</label><input type="text" class="v-engine" /></div>' +
+    '<div class="field-group"><label>Sum Insured (R)</label><input type="text" class="v-value" /></div>' +
+    '<div class="field-group"><label>Financier for this item</label><input type="text" class="v-financier" /></div>';
+  container.appendChild(block);
+}
+
+function getVehicles() {
+  const blocks = document.querySelectorAll('.vehicle-block');
+  const vehicles = [];
+  blocks.forEach(function(block, i) {
+    const desc = block.querySelector('.v-desc')?.value || '';
+    const reg  = block.querySelector('.v-reg')?.value || '';
+    const vin  = block.querySelector('.v-vin')?.value || '';
+    const eng  = block.querySelector('.v-engine')?.value || '';
+    const val  = block.querySelector('.v-value')?.value || '';
+    const fin  = block.querySelector('.v-financier')?.value || '';
+    if (desc || reg) vehicles.push({ item: i + 1, description: desc, registration: reg, vin: vin, engine: eng, sumInsured: val, financier: fin });
+  });
+  return vehicles;
+}
+
+// ── Generate COC ──────────────────────────────────────────────────────────────
+async function generateCOC() {
+  if (!brokerToken) { alert('Please login with your broker token first.'); return; }
+
+  const btn = document.getElementById('btnGenerate');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  document.getElementById('outputBody').innerHTML = '<div class="output-placeholder"><div class="spinner"></div><p>Generating Confirmation of Cover...</p></div>';
+  document.getElementById('outputActions').style.display = 'none';
+
+  const vehicles = getVehicles();
+  const today = getVal('letterDate') || new Date().toLocaleDateString('en-ZA', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  let vehicleTable = '';
+  if (vehicles.length > 0) {
+    vehicleTable = '\n\nITEMS INSURED:\n';
+    vehicles.forEach(function(v, i) {
+      vehicleTable += '\nItem ' + (i + 1) + ': ' + v.description;
+      if (v.registration) vehicleTable += '\nRegistration: ' + v.registration;
+      if (v.vin) vehicleTable += '\nVIN: ' + v.vin;
+      if (v.engine) vehicleTable += '\nEngine Number: ' + v.engine;
+      if (v.sumInsured) vehicleTable += '\nSum Insured: R' + v.sumInsured;
+      if (v.financier) vehicleTable += '\nFinancier: ' + v.financier;
+    });
+  }
+
+  const prompt = 'Generate a professional CONFIRMATION OF INSURANCE COVER letter with the following details.\n\n' +
+    'BROKER DETAILS:\nBroker: ' + getVal('brokerName') + '\nFSP Number: ' + getVal('fspNumber') +
+    '\nRepresentative: ' + getVal('repName') + '\nTitle: ' + (getVal('repTitle') || 'Authorised and Mandated Representative') +
+    '\nDate: ' + today + '\n\n' +
+    'RECIPIENT:\nAttention: ' + getVal('recipientName') + '\nEmail: ' + getVal('recipientEmail') + '\n\n' +
+    'INSURED:\nName: ' + getVal('insuredName') + '\nAddress: ' + getVal('insuredAddress') + '\n\n' +
+    'POLICY DETAILS:\nInsurer: ' + getVal('insurerName') + '\nPolicy Number: ' + getVal('policyNumber') +
+    '\nInception Date: ' + getVal('inceptionDate') + '\nRenewal Date: ' + getVal('renewalDate') +
+    '\nCover Type: ' + getVal('coverType') + '\nLines: ' + (linesType === 'personal' ? 'Personal Lines' : 'Commercial Lines') +
+    '\nFinancier (Interest Noted): ' + getVal('financierName') +
+    '\nSASRIA: ' + (document.getElementById('sasriaIncluded').checked ? 'Included' : 'Not included') +
+    '\nSpecial Notes: ' + getVal('specialNotes') + vehicleTable + '\n\n' +
+    'INSTRUCTIONS:\nProduce a professional, formal Confirmation of Insurance Cover letter. Structure:\n' +
+    '1. Letter header with broker name, FSP number, date\n' +
+    '2. Recipient address block (Attention line and email if provided)\n' +
+    '3. Bold heading: CONFIRMATION OF INSURANCE COVER\n' +
+    '4. Opening paragraph confirming the insured is covered under the policy\n' +
+    '5. Policy block: Insurer, Policy Number, Inception Date, Renewal Date\n' +
+    '6. Financier clause: state the interest of [financier] is noted as the first payee\n' +
+    '7. Items insured table with all vehicle/asset details\n' +
+    '8. SASRIA note if included\n' +
+    '9. Standard closing paragraph about the letter being valid subject to policy terms and premium payment\n' +
+    '10. Signature block with representative name and title\n' +
+    'Keep it professional, concise, and suitable for submission to a bank or financier. Do not add any information not provided above.';
+
+  try {
+    const res = await fetch(BACKEND + '/generate-roa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: brokerToken, user: prompt, mode: 'roa', language: 'en' })
+    });
+    const data = await res.json();
+    generatedText = data.content?.map(b => b.text || '').join('') || '';
+    renderCOC(generatedText);
+    document.getElementById('outputActions').style.display = 'flex';
+    checkCredits();
+  } catch(e) {
+    document.getElementById('outputBody').innerHTML = '<p style="color:red;padding:16px;">Generation failed: ' + e.message + '</p>';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Generate Confirmation of Cover';
+}
+
+function renderCOC(text) {
+  const lines = text.split('\n');
+  let html = '<div class="coc-output">';
+  lines.forEach(function(line) {
+    const trimmed = line.trim();
+    if (!trimmed) { html += '<br>'; return; }
+    if (trimmed.toUpperCase() === trimmed && trimmed.length > 5 && trimmed.includes(' ')) {
+      html += '<div class="coc-title">' + trimmed + '</div>';
+    } else if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
+      html += '<strong>' + trimmed.replace(/\*\*/g, '') + '</strong><br>';
+    } else {
+      html += '<p style="margin-bottom:6px;">' + trimmed + '</p>';
+    }
+  });
+  html += '</div>';
+  document.getElementById('outputBody').innerHTML = html;
+}
+
+function copyText() { navigator.clipboard.writeText(generatedText); }
+
+async function downloadPDF() {
+  if (!generatedText) return;
+  try {
+    const res = await fetch(BACKEND + '/generate-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: generatedText,
+        clientName: getVal('insuredName'),
+        fspName: getVal('brokerName'),
+        triggerLabel: 'Confirmation of Cover',
+        adviceDate: getVal('letterDate') || new Date().toISOString().slice(0, 10),
+        brokerToken: brokerToken
+      })
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'COC-' + (getVal('insuredName') || 'Client').replace(/\s+/g, '') + '.pdf';
+    a.click();
+  } catch(e) { alert('PDF download failed: ' + e.message); }
+}
+
+async function emailBroker() {
+  if (!generatedText || !brokerToken) return;
+  try {
+    await fetch(BACKEND + '/send-roa-to-broker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: brokerToken, roaText: generatedText, clientName: getVal('insuredName'), triggerLabel: 'Confirmation of Cover' })
+    });
+    alert('Emailed to broker successfully!');
+  } catch(e) { alert('Email failed: ' + e.message); }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.onload = function() {
+  if (brokerToken) {
+    document.getElementById('tokenInput').value = brokerToken;
+    checkCredits();
+  }
+  document.getElementById('letterDate').value = new Date().toISOString().slice(0, 10);
+};
+</script>
 </body>
 </html>
